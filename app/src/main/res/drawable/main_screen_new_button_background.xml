@@ -1,22 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
-    <shape>
-            <gradient
+    <shape android:shape="oval">
+        <size android:width="200dp" android:height="200dp" />
+        <gradient
                 android:startColor="#4476B1"
                 android:endColor="#0E075A"
                 android:angle="90" />
-            <corners android:radius="300dp" />
         </shape>
      </item>
 
     <item android:left="120dp" android:right="120dp" android:top="215dp" android:bottom="215dp">
         <shape android:shape="rectangle">
+            <size android:width="200dp" android:height="80dp" />
             <solid android:color="#D5EFF7" />
         </shape>
     </item>
 
     <item android:left="215dp" android:right="215dp" android:top="120dp" android:bottom="120dp">
         <shape android:shape="rectangle">
+            <size android:width="80dp" android:height="200dp" />
             <solid android:color="#D5EFF7" />
         </shape>
     </item>

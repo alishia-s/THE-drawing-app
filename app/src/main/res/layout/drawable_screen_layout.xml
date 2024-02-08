@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/drawable_screen_background"
+    android:gravity="center_horizontal"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:paddingLeft="10dp"
+        android:paddingTop="5dp"
+        android:paddingRight="10dp">
+
+        <Button
+            android:id="@+id/back_button"
+            android:layout_width="42dp"
+            android:layout_height="match_parent"
+            android:backgroundTint="#CAF0F8" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="261dp"
+            android:layout_height="30dp" />
+
+        <Button
+            android:id="@+id/save_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#CAF0F8"
+            android:text="Save"
+            android:textAlignment="center"
+            android:textAllCaps="true"
+            android:textColor="#03045E"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/canvas"
+        android:layout_width="360dp"
+        android:layout_height="360dp"
+        android:layout_marginTop="100dp"
+        android:layout_marginBottom="120dp"
+        android:background="#00000000"
+        android:src="@tools:sample/avatars"
+        tools:srcCompat="@android:drawable/screen_background_light" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/drawable_screen_toolbar_background"
+        android:gravity="center|center_horizontal"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/pen_button"
+            android:layout_width="42dp"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="5dp"
+            android:backgroundTint="#C9EFF7" />
+
+        <Button
+            android:id="@+id/eraser_button"
+            android:layout_width="42dp"
+            android:layout_height="match_parent"
+            android:layout_marginRight="20dp"
+            android:backgroundTint="#C8EEF6" />
+
+        <SeekBar
+            android:id="@+id/seekBar"
+            android:layout_width="103dp"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/color_button"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="10dp"
+            android:backgroundTint="#C7EDF5" />
+    </LinearLayout>
+
+</LinearLayout>

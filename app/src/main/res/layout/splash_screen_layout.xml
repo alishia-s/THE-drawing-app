@@ -8,7 +8,7 @@
     >
 
     <ImageView
-        android:id="@+id/imageView"
+        android:id="@+id/icon_imageView"
         android:layout_width="408dp"
         android:layout_height="381dp"
         android:src="@mipmap/ic_launcher_foreground"

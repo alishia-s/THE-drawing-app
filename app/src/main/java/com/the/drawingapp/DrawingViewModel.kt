@@ -6,12 +6,12 @@ import androidx.lifecycle.ViewModel
 
 class DrawingViewModel : ViewModel() {
     private val _currentColor = MutableLiveData<Int>()
+    val currentColor: LiveData<Int>
+        get() = _currentColor
+
     private val _currentStrokeWidth = MutableLiveData<Float>()
-    init{
-        // Set the default color and stroke width here.
-        _currentColor.value = 0
-        _currentStrokeWidth.value = 12f
-    }
+    val currentStrokeWidth: LiveData<Float>
+        get() = _currentStrokeWidth
 
     fun setColor(color: Int){
         _currentColor.value = color

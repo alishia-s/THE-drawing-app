@@ -43,12 +43,10 @@
 
     <com.the.drawingapp.DrawingView
         android:id="@+id/canvas"
-        android:layout_width="360dp"
-        android:layout_height="360dp"
+        android:layout_width="800px"
+        android:layout_height="800px"
         android:layout_marginTop="100dp"
-        android:layout_marginBottom="120dp"
-        android:background="#00000000"
-        android:src="@color/white"/>
+        android:layout_marginBottom="120dp" />
 
     <LinearLayout
         android:layout_width="wrap_content"

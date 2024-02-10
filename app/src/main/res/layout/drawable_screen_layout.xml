@@ -41,7 +41,7 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <ImageView
+    <com.the.drawingapp.DrawingView
         android:id="@+id/canvas"
         android:layout_width="360dp"
         android:layout_height="360dp"

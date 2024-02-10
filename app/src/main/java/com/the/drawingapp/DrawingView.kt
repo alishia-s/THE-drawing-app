@@ -3,10 +3,12 @@ package com.the.drawingapp
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Rect
 import android.util.AttributeSet
+import android.view.MotionEvent
 import android.view.View
 
 class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) {
@@ -21,14 +23,33 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
 
     init{
         // Set the default paint color, and stroke width
-        paint.color = 0xFF000000.toInt()
+        paint.color = Color.BLACK
         paint.strokeWidth = 12f
-        paint.style = Paint.Style.STROKE}
+        paint.style = Paint.Style.STROKE
+        bitmap.eraseColor(Color.WHITE)
+    }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         canvas.drawBitmap(bitmap, null, rect, paint)
         canvas.drawPath(drawPath, paint)
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        val touchX = event.x
+        val touchY = event.y
+
+        when (event.action) {
+            MotionEvent.ACTION_DOWN -> drawPath.moveTo(touchX, touchY)
+            MotionEvent.ACTION_MOVE -> drawPath.lineTo(touchX, touchY)
+            MotionEvent.ACTION_UP -> {
+                canvas.drawPath(drawPath, paint)
+                drawPath.reset()
+            }
+            else -> return false
+        }
+        invalidate()
+        return true
     }
 
     fun drawSomething() {

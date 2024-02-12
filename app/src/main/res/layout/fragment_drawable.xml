@@ -11,22 +11,20 @@
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         android:orientation="horizontal"
-        android:paddingLeft="10dp"
-        android:paddingTop="5dp"
-        android:paddingRight="10dp">
+        android:paddingTop="5dp">
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/back_button"
-            android:layout_width="42dp"
-            android:layout_height="match_parent"
-            android:backgroundTint="#CAF0F8" />
+            android:layout_width="50dp"
+            android:layout_height="49dp"
+            android:background="@drawable/drawable_screen_backbutton_background"
+            android:fontFamily="sans-serif" />
 
         <TextView
             android:id="@+id/textView"
-            android:layout_width="261dp"
-            android:layout_height="30dp" />
+            android:layout_width="239dp"
+            android:layout_height="32dp" />
 
         <Button
             android:id="@+id/save_button"
@@ -37,7 +35,7 @@
             android:textAlignment="center"
             android:textAllCaps="true"
             android:textColor="#03045E"
-            android:textSize="16sp"
+            android:textSize="20sp"
             android:textStyle="bold" />
     </LinearLayout>
 
@@ -71,9 +69,12 @@
             android:backgroundTint="#C8EEF6" />
 
         <SeekBar
-            android:id="@+id/seekBar"
+            android:id="@+id/penSizeBar"
             android:layout_width="103dp"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:max="100"
+            android:min="12"
+            android:progress="12" />
 
         <Button
             android:id="@+id/color_button"

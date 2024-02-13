@@ -1,6 +1,5 @@
 package com.the.drawingapp
 
-import androidx.fragment.app.testing.launchFragment
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
@@ -13,12 +12,11 @@ import org.junit.Assert.*
 
 import androidx.test.espresso.Espresso.onView;
 import androidx.test.espresso.action.ViewActions.click;
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isClickable
+import androidx.test.espresso.assertion.ViewAssertions.matches;
+import androidx.test.espresso.matcher.ViewMatchers.isClickable;
 import androidx.test.espresso.matcher.ViewMatchers.withId;
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
-import org.hamcrest.CoreMatchers.not
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -42,7 +40,6 @@ class ExampleInstrumentedTest {
 //    }
 
     //starting activity: https://stackoverflow.com/questions/30191715/start-activity-for-testing
-
 
     /*UI TESTING*/
     //testing MainActivity
@@ -76,8 +73,6 @@ class ExampleInstrumentedTest {
         onView(withId(R.id.color_button)).check(matches(isClickable()))
         activityScenario.moveToState(Lifecycle.State.DESTROYED)
     }
-
-
 
     //types of tests to write:
     /*

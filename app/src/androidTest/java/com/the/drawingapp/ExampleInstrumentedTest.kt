@@ -1,5 +1,6 @@
 package com.the.drawingapp
 
+import androidx.fragment.app.testing.launchFragment
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.platform.app.InstrumentationRegistry
@@ -13,9 +14,11 @@ import org.junit.Assert.*
 import androidx.test.espresso.Espresso.onView;
 import androidx.test.espresso.action.ViewActions.click;
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isClickable
 import androidx.test.espresso.matcher.ViewMatchers.withId;
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import org.junit.Rule
+import androidx.test.espresso.matcher.ViewMatchers.isEnabled
+import org.hamcrest.CoreMatchers.not
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -38,18 +41,43 @@ class ExampleInstrumentedTest {
 //        assertEquals("com.the.drawingapp", appContext.packageName)
 //    }
 
-    //starting activity:
-    //https://developer.android.com/reference/androidx/test/core/app/ActivityScenario
+    //starting activity: https://stackoverflow.com/questions/30191715/start-activity-for-testing
 
+
+    /*UI TESTING*/
+    //testing MainActivity
     @Test
-    fun createNewDrawing() {
+    fun createAndDisplayNewCanvas() {
         val activityScenario : ActivityScenario<MainActivity> = ActivityScenario.launch(MainActivity::class.java)
         activityScenario.moveToState(Lifecycle.State.RESUMED)
-            onView(withId(R.id.newDrawingButton)).perform(click())
-            onView(withId(R.id.canvas)).check(matches(isDisplayed()))
+        onView(withId(R.id.newDrawingButton)).perform(click())
+        onView(withId(R.id.canvas)).check(matches(isDisplayed()))
         activityScenario.moveToState(Lifecycle.State.DESTROYED)
 
     }
+    @Test
+    fun goBackButton(){
+        val activityScenario : ActivityScenario<MainActivity> = ActivityScenario.launch(MainActivity::class.java)
+        activityScenario.moveToState(Lifecycle.State.RESUMED)
+        onView(withId(R.id.newDrawingButton)).perform(click())
+        onView(withId(R.id.back_button)).perform(click())
+        onView(withId(R.id.recycler)).check(matches(isDisplayed()))
+        activityScenario.moveToState(Lifecycle.State.DESTROYED)
+    }
+    @Test
+    //testing DrawingView
+    fun areToolsClickable(){
+        val activityScenario : ActivityScenario<MainActivity> = ActivityScenario.launch(MainActivity::class.java)
+        activityScenario.moveToState(Lifecycle.State.RESUMED)
+        onView(withId(R.id.newDrawingButton)).perform(click())
+        onView(withId(R.id.pen_button)).check(matches(isClickable()))
+        onView(withId(R.id.eraser_button)).check(matches(isClickable()))
+        onView(withId(R.id.penSizeBar)).check(matches(isEnabled()))
+        onView(withId(R.id.color_button)).check(matches(isClickable()))
+        activityScenario.moveToState(Lifecycle.State.DESTROYED)
+    }
+
+
 
     //types of tests to write:
     /*

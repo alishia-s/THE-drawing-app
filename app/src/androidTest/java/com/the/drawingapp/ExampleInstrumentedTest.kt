@@ -40,7 +40,6 @@ class ExampleInstrumentedTest {
 //    }
 
     //starting activity: https://stackoverflow.com/questions/30191715/start-activity-for-testing
-
     /*UI TESTING*/
     //testing MainActivity
     @Test

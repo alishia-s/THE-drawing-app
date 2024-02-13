@@ -9,6 +9,8 @@ import androidx.fragment.app.Fragment
 import com.the.drawingapp.databinding.FragmentDrawableBinding
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
+import com.github.dhaval2404.colorpicker.ColorPickerDialog
+import com.github.dhaval2404.colorpicker.model.ColorShape
 
 
 class DrawableFragment: Fragment() {
@@ -20,30 +22,31 @@ class DrawableFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val binding = FragmentDrawableBinding.inflate(inflater, container, false)
+        initBackButton(binding)
+        initPenSizeSlider(binding)
+        initToolbarButtons(binding)
+        return binding.root
+    }
 
-        binding.backButton.setOnClickListener{
+    private fun initBackButton(binding: FragmentDrawableBinding) {
+        binding.backButton.setOnClickListener {
             viewModel.setColor(0xFF000000.toInt())
-            binding.penSizeBar.setProgress(12)
+            binding.penSizeBar.progress = 12
             parentFragmentManager.beginTransaction().remove(this).commit()
         }
+    }
 
+    private fun initPenSizeSlider(binding: FragmentDrawableBinding) {
         binding.penSizeBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 viewModel.setStrokeWidth(progress.toFloat())
             }
+
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
-
-        binding.eraserButton.setOnClickListener {
-            viewModel.setColor(0xFFFFFFFF.toInt())
-        }
-        binding.penButton.setOnClickListener {
-            viewModel.setColor(0xFF000000.toInt())
-        }
-
-        return binding.root
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -52,6 +55,24 @@ class DrawableFragment: Fragment() {
         initObservers(drawingView)
     }
 
+    private fun initToolbarButtons(binding: FragmentDrawableBinding) {
+        binding.eraserButton.setOnClickListener {
+            viewModel.setColor(0xFFFFFFFF.toInt())
+        }
+        binding.penButton.setOnClickListener {
+            viewModel.setColor(0xFF000000.toInt())
+        }
+        binding.colorButton.setOnClickListener {
+            ColorPickerDialog
+                .Builder(requireContext())
+                .setColorShape(ColorShape.CIRCLE)
+                .setDefaultColor(0xFF000000.toInt())
+                .setColorListener { color, _ ->
+                    viewModel.setColor(color)
+                }
+                .show()
+        }
+    }
     private fun initObservers(drawingView: DrawingView) {
         viewModel.currentColor.observe(viewLifecycleOwner, Observer { color ->
             drawingView.setPaintColor(color)

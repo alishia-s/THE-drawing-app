@@ -72,6 +72,7 @@ class ExampleInstrumentedTest {
         activityScenario.moveToState(Lifecycle.State.DESTROYED)
     }
 
+
     //types of tests to write:
     /*
     checking if drawing displays properly

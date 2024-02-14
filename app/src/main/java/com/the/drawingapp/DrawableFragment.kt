@@ -80,5 +80,8 @@ class DrawableFragment: Fragment() {
         viewModel.currentStrokeWidth.observe(viewLifecycleOwner, Observer { strokeWidth ->
             drawingView.setBrushSize(strokeWidth)
         })
+        viewModel.canvasBitmap.observe(viewLifecycleOwner, Observer { bitmap ->
+            drawingView.setBitmap(bitmap)
+        })
     }
 }

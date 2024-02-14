@@ -1,27 +1,37 @@
 package com.the.drawingapp
 
+import android.annotation.SuppressLint
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Path
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
-import com.the.drawingapp.databinding.FragmentDrawableBinding
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import com.github.dhaval2404.colorpicker.ColorPickerDialog
 import com.github.dhaval2404.colorpicker.model.ColorShape
+import com.the.drawingapp.databinding.FragmentDrawableBinding
 
 
 class DrawableFragment: Fragment() {
     private val viewModel: DrawingViewModel by activityViewModels()
+    private lateinit var binding: FragmentDrawableBinding
+    private lateinit var paint: Paint
+    private lateinit var drawingCanvas: Canvas
+    private var currentColor: Int = 0xFF000000.toInt()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val binding = FragmentDrawableBinding.inflate(inflater, container, false)
+        binding = FragmentDrawableBinding.inflate(inflater, container, false)
         initBackButton(binding)
         initPenSizeSlider(binding)
         initToolbarButtons(binding)
@@ -30,7 +40,7 @@ class DrawableFragment: Fragment() {
 
     private fun initBackButton(binding: FragmentDrawableBinding) {
         binding.backButton.setOnClickListener {
-            viewModel.setColor(0xFF000000.toInt())
+            paint.apply { this.color = 0xFF000000.toInt() }
             binding.penSizeBar.progress = 12
             parentFragmentManager.beginTransaction().remove(this).commit()
         }
@@ -39,7 +49,7 @@ class DrawableFragment: Fragment() {
     private fun initPenSizeSlider(binding: FragmentDrawableBinding) {
         binding.penSizeBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                viewModel.setStrokeWidth(progress.toFloat())
+                paint.apply { this.strokeWidth = progress.toFloat() }
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {}
@@ -48,19 +58,55 @@ class DrawableFragment: Fragment() {
     }
 
 
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val drawingView = view.findViewById<DrawingView>(R.id.canvas)
-
         initObservers(drawingView)
+        initDrawingCanvas(drawingView)
+
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun initDrawingCanvas(drawingView: DrawingView) {
+        //Initialize the Pen tool
+        currentColor = 0xFF000000.toInt()
+        paint = Paint().apply {
+            color = currentColor
+            strokeWidth = 12f
+            style = Paint.Style.STROKE
+            strokeJoin = Paint.Join.ROUND
+            strokeCap = Paint.Cap.ROUND
+        }
+
+        drawingCanvas = drawingView.canvas
+        val tempPath = Path()
+        binding.canvas.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    tempPath.moveTo(event.x, event.y)
+                }
+
+                MotionEvent.ACTION_MOVE -> {
+                    tempPath.lineTo(event.x, event.y)
+                    drawingCanvas.drawPath(tempPath, paint)
+                    binding.canvas.invalidate()
+                }
+
+                MotionEvent.ACTION_UP -> {
+                    tempPath.reset()
+                }
+            }
+            true
+        }
     }
 
     private fun initToolbarButtons(binding: FragmentDrawableBinding) {
         binding.eraserButton.setOnClickListener {
-            viewModel.setColor(0xFFFFFFFF.toInt())
+            paint.apply { this.color = Color.WHITE }
         }
         binding.penButton.setOnClickListener {
-            viewModel.setColor(0xFF000000.toInt())
+            paint.apply { this.color = currentColor }
         }
         binding.colorButton.setOnClickListener {
             ColorPickerDialog
@@ -68,18 +114,13 @@ class DrawableFragment: Fragment() {
                 .setColorShape(ColorShape.CIRCLE)
                 .setDefaultColor(0xFF000000.toInt())
                 .setColorListener { color, _ ->
-                    viewModel.setColor(color)
+                    currentColor = color
+                    paint.apply { this.color = currentColor }
                 }
                 .show()
         }
     }
     private fun initObservers(drawingView: DrawingView) {
-        viewModel.currentColor.observe(viewLifecycleOwner, Observer { color ->
-            drawingView.setPaintColor(color)
-        })
-        viewModel.currentStrokeWidth.observe(viewLifecycleOwner, Observer { strokeWidth ->
-            drawingView.setBrushSize(strokeWidth)
-        })
         viewModel.canvasBitmap.observe(viewLifecycleOwner, Observer { bitmap ->
             drawingView.setBitmap(bitmap)
         })

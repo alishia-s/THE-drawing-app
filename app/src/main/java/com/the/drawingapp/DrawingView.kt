@@ -52,13 +52,6 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
         return true
     }
 
-    fun drawSomething() {
-        // To test drawing something
-        paint.color = 0xFF0000FF.toInt()
-        canvas.drawCircle(400f, 400f, 200f, paint)
-        invalidate()
-    }
-
     fun setPaintColor(color: Int) {
         paint.color = color
     }

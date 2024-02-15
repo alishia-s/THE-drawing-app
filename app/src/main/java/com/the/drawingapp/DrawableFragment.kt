@@ -123,6 +123,7 @@ class DrawableFragment: Fragment() {
                 .setDefaultColor(0xFF000000.toInt())
                 .setColorListener { color, _ ->
                     currentColor = color
+                    viewModel.updateColor(currentColor)
                     paint.apply { this.color = currentColor }
                 }
                 .show()
@@ -134,6 +135,11 @@ class DrawableFragment: Fragment() {
             drawingCanvas = Canvas(bitmap)
             drawingView.setBitmap(bitmap)
             drawingView.invalidate()
+        })
+
+        viewModel.color.observe(viewLifecycleOwner, Observer { color ->
+            currentColor = color
+            paint.apply { this.color = currentColor }
         })
     }
 

@@ -1,31 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/drawable_screen_background"
-    android:gravity="center_horizontal"
-    android:orientation="vertical">
+    >
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
+        android:id="@+id/linearLayout2"
+        android:layout_width="713dp"
+        android:layout_height="56dp"
         android:orientation="horizontal"
-        android:paddingTop="5dp">
+        android:paddingTop="5dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/back_button"
-            android:layout_width="44dp"
-            android:layout_height="42dp"
+            android:layout_width="50dp"
+            android:layout_height="49dp"
             android:background="@drawable/drawable_screen_backbutton_background"
             android:fontFamily="sans-serif" />
 
         <TextView
             android:id="@+id/textView"
-            android:layout_width="556dp"
-            android:layout_height="35dp" />
+            android:layout_width="562dp"
+            android:layout_height="wrap_content" />
 
         <Button
             android:id="@+id/save_button"
@@ -42,18 +44,26 @@
 
     <com.the.drawingapp.DrawingView
         android:id="@+id/canvas"
-        android:layout_width="800px"
-        android:layout_height="800px"
-        android:layout_marginBottom="5dp" />
+        android:layout_width="700px"
+        android:layout_height="700px"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
 
     <LinearLayout
+        android:id="@+id/linearLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
         android:background="@drawable/drawable_screen_toolbar_background"
         android:gravity="center|center_horizontal"
         android:orientation="horizontal"
         android:paddingTop="4dp"
-        android:paddingBottom="4dp">
+        android:paddingBottom="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/pen_button"
@@ -86,5 +96,4 @@
             android:layout_marginRight="10dp"
             android:background="@drawable/colorpicker_button_icon" />
     </LinearLayout>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

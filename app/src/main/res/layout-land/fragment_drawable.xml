@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/drawable_screen_background"
-    >
+    android:background="@drawable/drawable_screen_background">
 
     <LinearLayout
         android:id="@+id/linearLayout2"
@@ -44,56 +43,54 @@
 
     <com.the.drawingapp.DrawingView
         android:id="@+id/canvas"
-        android:layout_width="700px"
-        android:layout_height="700px"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_width="800px"
+        android:layout_height="800px"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/linearLayout"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
 
     <LinearLayout
         android:id="@+id/linearLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="4dp"
+        android:layout_width="44dp"
+        android:layout_height="272dp"
+        android:layout_marginEnd="10dp"
         android:background="@drawable/drawable_screen_toolbar_background"
         android:gravity="center|center_horizontal"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:paddingTop="4dp"
         android:paddingBottom="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/pen_button"
             android:layout_width="40dp"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="5dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="5dp"
             android:background="@drawable/paintbrush_button_icon" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/eraser_button"
             android:layout_width="40dp"
-            android:layout_height="match_parent"
-            android:layout_marginRight="20dp"
+            android:layout_height="40dp"
+            android:layout_marginBottom="5dp"
             android:background="@drawable/eraser_button_icon" />
 
         <SeekBar
             android:id="@+id/penSizeBar"
-            android:layout_width="103dp"
-            android:layout_height="wrap_content"
+            android:layout_width="116dp"
+            android:layout_height="130dp"
             android:max="100"
             android:min="12"
-            android:progress="12" />
+            android:progress="12"
+            android:rotation="270" />
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/color_button"
             android:layout_width="40dp"
-            android:layout_height="42dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="10dp"
+            android:layout_height="40dp"
             android:background="@drawable/colorpicker_button_icon" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -51,22 +51,24 @@
         android:layout_height="wrap_content"
         android:background="@drawable/drawable_screen_toolbar_background"
         android:gravity="center|center_horizontal"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp">
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/pen_button"
-            android:layout_width="42dp"
+            android:layout_width="40dp"
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="5dp"
-            android:backgroundTint="#C9EFF7" />
+            android:background="@drawable/paintbrush_button_icon" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/eraser_button"
-            android:layout_width="42dp"
+            android:layout_width="40dp"
             android:layout_height="match_parent"
             android:layout_marginRight="20dp"
-            android:backgroundTint="#C8EEF6" />
+            android:background="@drawable/eraser_button_icon" />
 
         <SeekBar
             android:id="@+id/penSizeBar"
@@ -76,13 +78,13 @@
             android:min="12"
             android:progress="12" />
 
-        <Button
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/color_button"
             android:layout_width="40dp"
-            android:layout_height="wrap_content"
+            android:layout_height="42dp"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="10dp"
-            android:backgroundTint="#C7EDF5" />
+            android:background="@drawable/colorpicker_button_icon" />
     </LinearLayout>
 
 </LinearLayout>

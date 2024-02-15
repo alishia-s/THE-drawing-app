@@ -64,11 +64,11 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/cloudBackup"
-            android:layout_width="24dp"
+            android:layout_width="34dp"
             android:layout_height="30dp"
             android:layout_marginTop="10dp"
             android:layout_weight="0"
-            android:background="#00FFFFFF"
+            android:background="@drawable/cloud_button_icon"
             android:text=" " />
 
         <androidx.appcompat.widget.AppCompatButton
@@ -77,7 +77,7 @@
             android:layout_height="79dp"
             android:layout_marginTop="10dp"
             android:layout_weight="0"
-            android:background="@drawable/main_screen_new_button_background"
+            android:background="@drawable/new_button_icon"
             android:padding="0dp" />
     </LinearLayout>
 

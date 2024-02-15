@@ -1,11 +1,13 @@
 package com.the.drawingapp
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -24,6 +26,7 @@ class DrawableFragment: Fragment() {
     private lateinit var binding: FragmentDrawableBinding
     private lateinit var paint: Paint
     private lateinit var drawingCanvas: Canvas
+    private lateinit var bitmap: Bitmap
     private var currentColor: Int = 0xFF000000.toInt()
 
     override fun onCreateView(
@@ -64,7 +67,16 @@ class DrawableFragment: Fragment() {
         val drawingView = view.findViewById<DrawingView>(R.id.canvas)
         initObservers(drawingView)
         initDrawingCanvas(drawingView)
+        initBitmapAndCanvas()
+    }
 
+    private fun initBitmapAndCanvas() {
+        if(viewModel.canvasBitmap.value == null) {
+            bitmap =
+                Bitmap.createBitmap(800, 800, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.WHITE) }
+            drawingCanvas = Canvas(bitmap)
+            viewModel.updateBitmap(bitmap)
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -79,24 +91,20 @@ class DrawableFragment: Fragment() {
             strokeCap = Paint.Cap.ROUND
         }
 
-        drawingCanvas = drawingView.canvas
         val tempPath = Path()
-        binding.canvas.setOnTouchListener { _, event ->
+        drawingView.setOnTouchListener { _, event ->
             when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    tempPath.moveTo(event.x, event.y)
-                }
-
+                MotionEvent.ACTION_DOWN -> tempPath.moveTo(event.x, event.y)
                 MotionEvent.ACTION_MOVE -> {
                     tempPath.lineTo(event.x, event.y)
                     drawingCanvas.drawPath(tempPath, paint)
-                    binding.canvas.invalidate()
+                    viewModel.updateBitmap(bitmap)
                 }
-
                 MotionEvent.ACTION_UP -> {
                     tempPath.reset()
                 }
             }
+            drawingView.invalidate()
             true
         }
     }
@@ -122,7 +130,11 @@ class DrawableFragment: Fragment() {
     }
     private fun initObservers(drawingView: DrawingView) {
         viewModel.canvasBitmap.observe(viewLifecycleOwner, Observer { bitmap ->
+            this.bitmap = bitmap
+            drawingCanvas = Canvas(bitmap)
             drawingView.setBitmap(bitmap)
+            drawingView.invalidate()
         })
     }
+
 }

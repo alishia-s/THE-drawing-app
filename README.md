@@ -1,4 +1,4 @@
-Univeristy of Utah
+Univeristy of Utah /n
 CS4530: Mobile App Programming
 Drawing App
 THE: Thomas, Nam, Alishia 

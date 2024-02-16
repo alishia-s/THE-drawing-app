@@ -54,7 +54,7 @@
 
     <LinearLayout
         android:id="@+id/linearLayout"
-        android:layout_width="wrap_content"
+        android:layout_width="348dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="30dp"
         android:background="@drawable/drawable_screen_toolbar_background"
@@ -68,8 +68,8 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/pen_button"
-            android:layout_width="40dp"
-            android:layout_height="match_parent"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="5dp"
             android:background="@drawable/paintbrush_button_icon" />
@@ -82,9 +82,17 @@
             android:text="RECTANGLE" />
 
         <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/shape_button"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/shape_button_icon_circle" />
+
+
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/eraser_button"
-            android:layout_width="40dp"
-            android:layout_height="match_parent"
+            android:layout_width="42dp"
+            android:layout_height="42dp"
             android:layout_marginRight="20dp"
             android:background="@drawable/eraser_button_icon" />
 
@@ -98,7 +106,7 @@
 
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/color_button"
-            android:layout_width="40dp"
+            android:layout_width="42dp"
             android:layout_height="42dp"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="10dp"

@@ -6,8 +6,8 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
+import android.graphics.Rect
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
@@ -27,6 +27,8 @@ class DrawableFragment: Fragment() {
     private lateinit var paint: Paint
     private lateinit var drawingCanvas: Canvas
     private lateinit var bitmap: Bitmap
+    private var pen = false
+    private var shape = false
     private var currentColor: Int = 0xFF000000.toInt()
 
     override fun onCreateView(
@@ -92,16 +94,30 @@ class DrawableFragment: Fragment() {
         }
 
         val tempPath = Path()
+        var xi = 0
+        var yi = 0
         drawingView.setOnTouchListener { _, event ->
             when (event.action) {
-                MotionEvent.ACTION_DOWN -> tempPath.moveTo(event.x, event.y)
+                MotionEvent.ACTION_DOWN -> {
+                    tempPath.moveTo(event.x, event.y)
+                    xi = event.x.toInt()
+                    yi = event.y.toInt()
+                }
                 MotionEvent.ACTION_MOVE -> {
-                    tempPath.lineTo(event.x, event.y)
-                    drawingCanvas.drawPath(tempPath, paint)
-                    viewModel.updateBitmap(bitmap)
+                    if(pen){
+                        tempPath.lineTo(event.x, event.y)
+                        drawingCanvas.drawPath(tempPath, paint)
+                        viewModel.updateBitmap(bitmap)
+                    }
                 }
                 MotionEvent.ACTION_UP -> {
+                    if(shape){
+                        val rect = Rect(xi, yi, event.x.toInt(), event.y.toInt())
+                        drawingCanvas.drawRect(rect, paint)
+                    }
                     tempPath.reset()
+                    xi = 0
+                    yi = 0
                 }
             }
             drawingView.invalidate()
@@ -110,11 +126,19 @@ class DrawableFragment: Fragment() {
     }
 
     private fun initToolbarButtons(binding: FragmentDrawableBinding) {
+
+        binding.rectangleButton?.setOnClickListener{
+            paint.apply { this.color = currentColor }
+            pen = false;
+            shape = true;
+        }
         binding.eraserButton.setOnClickListener {
             paint.apply { this.color = Color.WHITE }
         }
         binding.penButton.setOnClickListener {
             paint.apply { this.color = currentColor }
+                pen = true;
+                shape = false;
         }
         binding.colorButton.setOnClickListener {
             ColorPickerDialog

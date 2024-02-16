@@ -74,6 +74,13 @@
             android:layout_marginRight="5dp"
             android:background="@drawable/paintbrush_button_icon" />
 
+        <Button
+            android:id="@+id/rectangle_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="RECTANGLE" />
+
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/eraser_button"
             android:layout_width="40dp"

@@ -1,6 +1,9 @@
-Univeristy of Utah /n
+Univeristy of Utah
+
 CS4530: Mobile App Programming
+
 Drawing App
+
 THE: Thomas, Nam, Alishia 
 
 This repositiory is for a drawing app. 

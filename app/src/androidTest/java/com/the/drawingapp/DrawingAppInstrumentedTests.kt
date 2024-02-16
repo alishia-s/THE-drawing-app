@@ -1,10 +1,8 @@
 package com.the.drawingapp
 
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.testing.TestLifecycleOwner
-import androidx.lifecycle.viewModelScope
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
@@ -14,10 +12,9 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.Assert.*
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,23 +38,24 @@ class DrawingAppInstrumentedTests {
     /*UI TESTING*/
     //testing MainActivity
     @Test
-    fun createAndDisplayNewCanvas() {
+    fun isNewCanvasDisplayedOnClick() {
         val activityScenario: ActivityScenario<MainActivity> =
             ActivityScenario.launch(MainActivity::class.java)
         activityScenario.moveToState(Lifecycle.State.RESUMED)
         onView(withId(R.id.newDrawingButton)).perform(click())
         onView(withId(R.id.canvas)).check(matches(isDisplayed()))
         activityScenario.moveToState(Lifecycle.State.DESTROYED)
-
     }
 
     @Test
-    fun goBackButton() {
+    fun doesGoBackButtonGoBackToMain() {
         val activityScenario: ActivityScenario<MainActivity> =
             ActivityScenario.launch(MainActivity::class.java)
         activityScenario.moveToState(Lifecycle.State.RESUMED)
         onView(withId(R.id.newDrawingButton)).perform(click())
         onView(withId(R.id.back_button)).perform(click())
+
+        //recycler only exists in main
         onView(withId(R.id.recycler)).check(matches(isDisplayed()))
         activityScenario.moveToState(Lifecycle.State.DESTROYED)
     }
@@ -109,54 +107,51 @@ class DrawingAppInstrumentedTests {
     /*Testing ViewModel logic*/
 
     private val vm = DrawingViewModel()
-    private val lifecycleOwner = TestLifecycleOwner()
 
     @Test
-    fun testViewModel_updatingBitmap() = runTest {
-        val activityScenario: ActivityScenario<MainActivity> =
-            ActivityScenario.launch(MainActivity::class.java)
-        activityScenario.moveToState(Lifecycle.State.RESUMED)
-        onView(withId(R.id.newDrawingButton)).perform(click())
-        val newBitmap = Bitmap.createBitmap(400, 400, Bitmap.Config.ARGB_8888)
-        var updatedBitmap = false
-        vm.viewModelScope.launch {
-                //changing bitmap
-                vm.canvasBitmap.observe(lifecycleOwner)
-                {
-                    updatedBitmap = true
-                    Log.e("TESTING", "${updatedBitmap!!}")
-                }
-            vm.updateBitmap(newBitmap)
-        }
-        advanceUntilIdle()
-        delay(1000)
+    fun testViewModel_updatingBitmap() {
+        runBlocking {
+            val newBitmap = Bitmap.createBitmap(400, 400, Bitmap.Config.ARGB_8888)
+            var updatedBitmap = false
+            val lifecycleOwner = TestLifecycleOwner()
+            lifecycleOwner.run {
+                withContext(Dispatchers.Main) {
+                    //changing bitmap
+                    vm.canvasBitmap.observe(lifecycleOwner)
+                    {
+                        updatedBitmap = true
+                    }
+                    vm.updateBitmap(newBitmap)
 
-        //bitmap is originally 800 x 800, check to see if size also changed
-        //so old one is replaced
-        assertEquals(400, vm.canvasBitmap.value!!.height)
-        assertEquals(400, vm.canvasBitmap.value!!.width)
-        assertTrue(updatedBitmap)
+                    //bitmap is originally 800 x 800, check to see if size also changed
+                    //so old one is replaced
+                    assertEquals(400, vm.canvasBitmap.value!!.height)
+                    assertEquals(400, vm.canvasBitmap.value!!.width)
+                    assertTrue(updatedBitmap)
+                }
+            }
+        }
     }
 
     @Test
-    fun testingViewModel_updatingColor() = runTest{
-        //color is set to an int, should be null if activity hasn't started
-        val color = 1;
-        var updatedColor = false
-        vm.viewModelScope.launch {
-            //changing color
-            vm.color.observe(lifecycleOwner)
-            {
-                updatedColor = true
-                Log.e("TESTING", "${vm.color.value!!}")
-                Log.e("TESTING", "${updatedColor}")
+    fun testingViewModel_updatingColor() {
+        runBlocking {
+            //color is set to an int, should be null if activity hasn't started
+            val color = 1
+            var updatedColor = false
+            val lifecycleOwner = TestLifecycleOwner()
+            lifecycleOwner.run {
+                withContext(Dispatchers.Main) {
+                    //change color
+                    vm.color.observe(lifecycleOwner)
+                    {
+                        updatedColor = true
+                    }
+                    vm.updateColor(color)
+                }
+                assertEquals(1, vm.color.value!!)
+                assertTrue(updatedColor)
             }
-            vm.updateColor(color)
         }
-        advanceUntilIdle()
-        delay(1000)
-
-        assertEquals(1, vm.color.value!!)
-        assertTrue(updatedColor)
     }
 }

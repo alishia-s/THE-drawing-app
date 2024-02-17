@@ -2,7 +2,19 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
+      <entry key="DrawingAppInstrumentedTests">
+        <State />
+      </entry>
       <entry key="app">
+        <State />
+      </entry>
+      <entry key="shapeButton()">
+        <State />
+      </entry>
+      <entry key="testViewModel_updatingBitmap()">
+        <State />
+      </entry>
+      <entry key="testingTool_updateColor()">
         <State />
       </entry>
     </value>

@@ -1,6 +1,7 @@
 package com.the.drawingapp
 
 import android.graphics.Bitmap
+import android.graphics.Paint
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.core.app.ActivityScenario
@@ -104,13 +105,32 @@ class DrawingAppInstrumentedTests {
         activityScenario.moveToState(Lifecycle.State.DESTROYED)
     }
 
+    @Test
+    fun toggleToSquareShapeButton(){
+        val activityScenario: ActivityScenario<MainActivity> =
+            ActivityScenario.launch(MainActivity::class.java)
+        activityScenario.moveToState(Lifecycle.State.RESUMED)
+        onView(withId(R.id.newDrawingButton)).perform(click())
+        onView(withId(R.id.shape_button)).perform(click())
+        runBlocking {
+            val tool = Tool()
+            val isRectangle = true
+            val lifecycleOwner = TestLifecycleOwner()
+            lifecycleOwner.run {
+                withContext(Dispatchers.Main) {
+                    tool.toggleShape(isRectangle)
+                }
+                assertEquals(Paint.Cap.SQUARE, tool.paint.strokeCap!!)
+            }
+        }
+        activityScenario.moveToState(Lifecycle.State.DESTROYED)
+    }
+
     /*Testing ViewModel logic*/
-
-    private val vm = DrawingViewModel()
-
     @Test
     fun testViewModel_updatingBitmap() {
         runBlocking {
+            val vm = DrawingViewModel()
             val newBitmap = Bitmap.createBitmap(400, 400, Bitmap.Config.ARGB_8888)
             var updatedBitmap = false
             val lifecycleOwner = TestLifecycleOwner()
@@ -121,6 +141,9 @@ class DrawingAppInstrumentedTests {
                     {
                         updatedBitmap = true
                     }
+                    //initialize bitMap
+                    vm.initBitmap()
+                    //update it
                     vm.updateBitmap(newBitmap)
 
                     //bitmap is originally 800 x 800, check to see if size also changed
@@ -134,23 +157,84 @@ class DrawingAppInstrumentedTests {
     }
 
     @Test
-    fun testingViewModel_updatingColor() {
+    fun testingViewModel_initBitmap()
+    {
         runBlocking {
-            //color is set to an int, should be null if activity hasn't started
-            val color = 1
+            val vm = DrawingViewModel()
+            val lifecycleOwner = TestLifecycleOwner()
+            lifecycleOwner.run {
+                withContext(Dispatchers.Main) {
+                    //initialize bitMap
+                    vm.initBitmap()
+
+                    //bitmap is originally 800 x 800, check to see if size also changed
+                    //so old one is replaced
+                    assertEquals(1920, vm.canvasBitmap.value!!.height)
+                    assertEquals(1080, vm.canvasBitmap.value!!.width)
+                }
+            }
+        }
+
+    }
+
+    /*Testing Tool Logic*/
+    @Test
+    fun testingTool_updateColor(){
+        runBlocking {
+            val tool = Tool()
+            //change color to red (#ff0000 -> int)
+            val color = 0xFF000000.toInt()
             var updatedColor = false
             val lifecycleOwner = TestLifecycleOwner()
             lifecycleOwner.run {
                 withContext(Dispatchers.Main) {
+                    //color is set to an int, when starting, it's black
+                    tool.activatePen()
                     //change color
-                    vm.color.observe(lifecycleOwner)
+                    tool.currentColor.observe(lifecycleOwner)
                     {
                         updatedColor = true
                     }
-                    vm.updateColor(color)
+                    tool.updateColor(color)
                 }
-                assertEquals(1, vm.color.value!!)
+                assertEquals(color, tool.currentColor.value!!)
                 assertTrue(updatedColor)
+            }
+        }
+    }
+    @Test
+    fun testingTool_updateStrokeWidth(){
+        runBlocking {
+            val tool = Tool()
+            val width = 13f
+            var updatedWidth = false
+            val lifecycleOwner = TestLifecycleOwner()
+            lifecycleOwner.run {
+                withContext(Dispatchers.Main) {
+                    //set width to default value
+                    tool.activatePen()
+                    tool.strokeWidth.observe(lifecycleOwner)
+                    {
+                        updatedWidth = true
+                    }
+                    tool.updateStrokeWidth(width)
+                }
+                assertEquals(13f, tool.strokeWidth.value!!)
+                assertTrue(updatedWidth)
+            }
+        }
+    }
+    @Test
+    fun testingTool_toggleShape(){
+        runBlocking {
+            val tool = Tool()
+            val isCircle = false
+            val lifecycleOwner = TestLifecycleOwner()
+            lifecycleOwner.run {
+                withContext(Dispatchers.Main) {
+                    tool.toggleShape(isCircle)
+                }
+                assertEquals(Paint.Join.ROUND, tool.paint.strokeJoin!!)
             }
         }
     }

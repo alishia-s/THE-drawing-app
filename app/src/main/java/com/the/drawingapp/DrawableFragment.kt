@@ -4,9 +4,7 @@ import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
-import android.graphics.Paint
 import android.graphics.Path
-import android.graphics.Rect
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -20,7 +18,6 @@ import androidx.lifecycle.Observer
 import com.github.dhaval2404.colorpicker.ColorPickerDialog
 import com.github.dhaval2404.colorpicker.model.ColorShape
 import com.the.drawingapp.databinding.FragmentDrawableBinding
-import kotlin.math.log
 
 
 class DrawableFragment: Fragment() {
@@ -29,6 +26,7 @@ class DrawableFragment: Fragment() {
     private lateinit var drawingCanvas: Canvas
     private lateinit var bitmap: Bitmap
     private lateinit var tool: Tool
+    private var isCircle = true
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -39,7 +37,7 @@ class DrawableFragment: Fragment() {
         tool = viewModel.tool
         initBackButton(binding)
         initPenSizeSlider(binding)
-        initToolbarButtons(binding)
+        initToolbarButtons()
         return binding.root
     }
 
@@ -78,25 +76,38 @@ class DrawableFragment: Fragment() {
         val tempPath = Path()
         drawingView.setOnTouchListener { _, event ->
             when (event.action) {
-                MotionEvent.ACTION_DOWN -> tempPath.moveTo(event.x, event.y)
+                MotionEvent.ACTION_DOWN -> {
+                    tempPath.moveTo(event.x, event.y)
+                    drawingCanvas.drawPoint(event.x, event.y, tool.paint)
+
+                }
                 MotionEvent.ACTION_MOVE -> {
                     tempPath.lineTo(event.x, event.y)
                     drawingCanvas.drawPath(tempPath, tool.paint)
-                    viewModel.updateBitmap(bitmap)
+
                 }
                 MotionEvent.ACTION_UP -> {
                     tempPath.reset()
                 }
             }
+            viewModel.updateBitmap(bitmap)
             drawingView.invalidate()
             true
         }
     }
 
-    private fun initToolbarButtons(binding: FragmentDrawableBinding) {
+    private fun initToolbarButtons() {
 
-        binding.rectangleButton?.setOnClickListener{
-            tool.activateShape()
+        binding.shapeButton.setOnClickListener{
+            if (isCircle){
+                binding.shapeButton.setBackgroundResource(R.drawable.shape_button_icon_rect)
+            }
+            else {
+                binding.shapeButton.setBackgroundResource(R.drawable.shape_button_icon_circle)
+            }
+            tool.toggleShape(isCircle)
+            isCircle = !isCircle
+
         }
         binding.eraserButton.setOnClickListener {
             tool.activateEraser()

@@ -13,9 +13,6 @@ class Tool {
     private val _isPenActive = MutableLiveData<Boolean>().apply { value = false }
     val isPenActive: LiveData<Boolean> = _isPenActive
 
-    private val _isShapeActive = MutableLiveData<Boolean>().apply { value = false }
-    val isShapeActive: LiveData<Boolean> = _isShapeActive
-
     private val _isEraserActive = MutableLiveData<Boolean>().apply { value = false }
     val isEraserActive: LiveData<Boolean> = _isEraserActive
 
@@ -39,7 +36,6 @@ class Tool {
 
     fun activatePen() {
         _isPenActive.value = true
-        _isShapeActive.value = false
         _isEraserActive.value = false
         paint.color = _currentColor.value ?: Color.BLACK
         paint.strokeWidth = _strokeWidth.value ?: 12f
@@ -50,19 +46,24 @@ class Tool {
         paint.strokeWidth = width
     }
 
-    fun activateShape() {
-        _isPenActive.value = false
-        _isShapeActive.value = true
-        _isEraserActive.value = false
-        paint.apply {
-            strokeJoin = Paint.Join.BEVEL
-            strokeCap = Paint.Cap.SQUARE  }
+    fun toggleShape(isCircle: Boolean) {
+        if(!isCircle) {
+            paint.apply {
+                strokeJoin = Paint.Join.ROUND
+                strokeCap = Paint.Cap.ROUND
+            }
+        }
+        else {
+            paint.apply {
+                strokeJoin = Paint.Join.MITER
+                strokeCap = Paint.Cap.SQUARE
+            }
+        }
     }
 
     fun activateEraser() {
         _isEraserActive.value = true
         _isPenActive.value = false
-        _isShapeActive.value = false
         paint.color = Color.WHITE
     }
 }

@@ -1,15 +1,14 @@
-Univeristy of Utah
+# University of Utah - CS4530: Mobile App Programming
 
-CS4530: Mobile App Programming
+## Drawing App by THE
 
-Drawing App
+### THE - Team Members:
+- Thomas
+- Nam
+- Alishia
 
-THE: Thomas, Nam, Alishia 
-
-This repositiory is for a drawing app. 
-
-PHASE 1:
-* created custom view that's drawable
-* added pen, different pen sizes, and color
-* created a splash screen
-* added tests to test view model logic and UI navigation
+# PHASE 1:
+1.  Created CustomView that's Drawable
+2.  Added Pen, Different Pen Sizes/Shapes, and Color
+3.  Created a Splash Screen
+4.  Added tests to test ViewModel logic and UI Navigation

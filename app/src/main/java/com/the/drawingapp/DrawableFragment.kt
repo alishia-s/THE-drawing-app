@@ -14,6 +14,7 @@ import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import com.github.dhaval2404.colorpicker.ColorPickerDialog
 import com.github.dhaval2404.colorpicker.model.ColorShape
@@ -21,7 +22,8 @@ import com.the.drawingapp.databinding.FragmentDrawableBinding
 
 
 class DrawableFragment: Fragment() {
-    private val viewModel: DrawingViewModel by activityViewModels()
+    //activityByViewmodels not working...
+    private val viewModel : DrawingViewModel by activityViewModels{DrawingViewModel.DrawingViewModelFactory((getActivity()?.application as DrawingApplication).drawingAppRepository)}
     private lateinit var binding: FragmentDrawableBinding
     private lateinit var drawingCanvas: Canvas
     private lateinit var bitmap: Bitmap
@@ -37,8 +39,15 @@ class DrawableFragment: Fragment() {
         tool = viewModel.tool
         initBackButton(binding)
         initPenSizeSlider(binding)
+        initSaveButton(binding)
         initToolbarButtons()
         return binding.root
+    }
+
+    private fun initSaveButton(binding: FragmentDrawableBinding) {
+        binding.saveButton.setOnClickListener {
+            viewModel.sendDrawing()
+        }
     }
 
     private fun initBackButton(binding: FragmentDrawableBinding) {

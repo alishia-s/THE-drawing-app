@@ -7,13 +7,14 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asLiveData
 import java.io.FileOutputStream
 import java.lang.IllegalArgumentException
 
 class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
     private val _canvasBitmap = MutableLiveData<Bitmap>()
     val canvasBitmap: LiveData<Bitmap> = _canvasBitmap
-
+    private val allDrawings = repo.retrieveDrawing.asLiveData()
     val tool = Tool()
 
     fun initBitmap() {
@@ -29,10 +30,14 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
         repo.saveDrawing(_canvasBitmap.value!!)
     }
 
+    //should be set to onclicklistener for the
+    fun restoreDrawing(pos : Int)
+    {
+        _canvasBitmap.value = allDrawings.value!!.get(pos)
+    }
 
-    fun restoreDrawing(){}
-
-    fun updateBitmap(bitmap: Bitmap) {
+    fun updateBitmap(bitmap: Bitmap)
+    {
         _canvasBitmap.value = bitmap
     }
 

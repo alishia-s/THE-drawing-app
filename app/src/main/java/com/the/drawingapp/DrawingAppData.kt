@@ -18,9 +18,12 @@ class Converters {
 }
 
 //when save is pressed, save and send it as a DrawingAppData
-@Entity(tableName = "drawing")
+@Entity(tableName = "drawings")
 data class DrawingAppData(var timestamp: Date,
                           var name : String) {
+    //will autoincrement
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0
+
+    fun replaceName(newName : String) {name = newName}
 }

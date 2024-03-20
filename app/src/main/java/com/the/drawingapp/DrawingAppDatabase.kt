@@ -32,17 +32,14 @@ abstract class DrawingAppDatabase : RoomDatabase() {
             }
         }
     }
-
 }
 
 @Dao
 interface DrawingAppDao
 {
-    //inserting data
     @Insert
-    suspend fun addDrawing(data : DrawingAppData)
+    suspend fun saveDrawing(data: DrawingAppData)
 
-    //@Query("SELECT * from drawings ")
-    //fun getCurrentDrawing() : Flow<DrawingAppData>
-
+    @Query("SELECT * from drawings")
+    fun getAllDrawings() : Flow<List<DrawingAppData>>
 }

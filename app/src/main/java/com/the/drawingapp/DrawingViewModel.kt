@@ -8,13 +8,15 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import java.io.FileOutputStream
 import java.lang.IllegalArgumentException
 
 class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
     private val _canvasBitmap = MutableLiveData<Bitmap>()
     val canvasBitmap: LiveData<Bitmap> = _canvasBitmap
-    private val allDrawings = repo.retrieveDrawing.asLiveData()
     val tool = Tool()
 
     fun initBitmap() {
@@ -33,7 +35,15 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
     //should be set to onclicklistener for the
     fun restoreDrawing(pos : Int)
     {
-        _canvasBitmap.value = allDrawings.value!!.get(pos)
+        viewModelScope.launch{
+            //repo.NUKE()
+            repo.retrieveDrawing.collect{
+                for(m in it){
+                    Log.d("bitmap", "${it[pos]}")
+                    _canvasBitmap.value = m
+                }
+            }
+        }
     }
 
     fun updateBitmap(bitmap: Bitmap)

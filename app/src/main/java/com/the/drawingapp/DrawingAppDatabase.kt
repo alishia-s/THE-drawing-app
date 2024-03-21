@@ -42,4 +42,7 @@ interface DrawingAppDao
 
     @Query("SELECT * from drawings")
     fun getAllDrawings() : Flow<List<DrawingAppData>>
+
+    @Query("Delete from drawings")
+    fun NUKEITALL()
 }

@@ -8,15 +8,15 @@ import androidx.lifecycle.MutableLiveData
 class Tool {
 
     private val _currentColor = MutableLiveData<Int>()
-        //.apply { value = 0xFF000000.toInt() }
+        .apply { value = 0xFF000000.toInt() }
     val currentColor: LiveData<Int> = _currentColor
 
     private val _isPenActive = MutableLiveData<Boolean>()
-        //.apply { value = false }
+        .apply { value = false }
     val isPenActive: LiveData<Boolean> = _isPenActive
 
     private val _isEraserActive = MutableLiveData<Boolean>()
-        //.apply { value = false }
+        .apply { value = false }
     val isEraserActive: LiveData<Boolean> = _isEraserActive
 
     private val _strokeWidth = MutableLiveData<Float>()

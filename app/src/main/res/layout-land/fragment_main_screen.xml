@@ -12,7 +12,8 @@
         android:background="@drawable/main_screen_background"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:paddingTop="30dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -34,7 +35,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="451dp"
+            android:layout_height="wrap_content"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -60,34 +61,32 @@
                 android:background="@drawable/main_screen_right_arrow"
                 android:text=" " />
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/cloudBackup"
+                    android:layout_width="29dp"
+                    android:layout_height="27dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="0"
+                    android:background="@drawable/cloud_button_icon" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/newDrawingButton"
+                    android:layout_width="120dp"
+                    android:layout_height="123dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_weight="0"
+                    android:background="@drawable/new_button_icon"
+                    android:padding="0dp" />
+            </LinearLayout>
+
         </LinearLayout>
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/cloudBackup"
-            android:layout_width="34dp"
-            android:layout_height="30dp"
-            android:layout_marginTop="10dp"
-            android:layout_weight="0"
-            android:background="@drawable/cloud_button_icon"
-            android:text=" " />
-
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/newDrawingButton"
-            android:layout_width="78dp"
-            android:layout_height="79dp"
-            android:layout_marginTop="10dp"
-            android:layout_weight="0"
-            android:background="@drawable/new_button_icon"
-            android:padding="0dp" />
     </LinearLayout>
-
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/fragmentContainerView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -14,8 +14,8 @@ import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.colorpicker.ColorPickerDialog
 import com.github.dhaval2404.colorpicker.model.ColorShape
 import com.the.drawingapp.databinding.FragmentDrawableBinding
@@ -41,6 +41,9 @@ class DrawableFragment: Fragment() {
         initPenSizeSlider(binding)
         initSaveButton(binding)
         initToolbarButtons()
+        binding.backButton.setOnClickListener{
+            findNavController().navigate(R.id.action_drawableFragment2_to_mainScreenFragment)
+        }
         return binding.root
     }
 
@@ -53,8 +56,6 @@ class DrawableFragment: Fragment() {
     private fun initBackButton(binding: FragmentDrawableBinding) {
         binding.backButton.setOnClickListener {
             binding.penSizeBar.progress = 12
-//            parentFragmentManager.beginTransaction().remove(this).commit()
-            parentFragmentManager.popBackStack()
             bitmap.eraseColor(Color.WHITE)
         }
     }

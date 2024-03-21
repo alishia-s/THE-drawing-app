@@ -1,11 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/nav_graph.xml"
-    app:startDestination="@id/drawableFragment">
-
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/mainScreenFragment"
+    >
     <fragment
-        android:id="@+id/drawableFragment"
+        android:id="@+id/mainScreenFragment"
+        android:name="com.the.drawingapp.MainScreenFragment"
+        android:label="MainScreenFragment" >
+        <action
+            android:id="@+id/action_mainScreenFragment_to_drawableFragment2"
+            app:destination="@id/drawableFragment2" />
+    </fragment>
+    <fragment
+        android:id="@+id/drawableFragment2"
         android:name="com.the.drawingapp.DrawableFragment"
-        android:label="DrawableFragment" />
+        android:label="DrawableFragment" >
+        <action
+            android:id="@+id/action_drawableFragment2_to_mainScreenFragment"
+            app:destination="@id/mainScreenFragment" />
+    </fragment>
 </navigation>

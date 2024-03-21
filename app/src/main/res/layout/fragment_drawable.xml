@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/drawable_screen_background"
-    >
+    android:background="@drawable/drawable_screen_background">
 
     <LinearLayout
         android:id="@+id/linearLayout2"
@@ -45,8 +44,8 @@
 
     <com.the.drawingapp.DrawingView
         android:id="@+id/canvas"
-        android:layout_width="800px"
-        android:layout_height="800px"
+        android:layout_width="340dp"
+        android:layout_height="340dp"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

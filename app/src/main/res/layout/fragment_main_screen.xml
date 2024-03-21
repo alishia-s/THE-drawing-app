@@ -5,15 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/main_screen_background"
         android:gravity="center_horizontal"
         android:orientation="vertical"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
+        android:paddingTop="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -35,7 +33,7 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="451dp"
             android:gravity="center"
             android:orientation="horizontal">
 
@@ -46,13 +44,11 @@
                 android:background="@drawable/main_screen_left_arrow"
                 android:text=" " />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler"
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/composeView"
                 android:layout_width="308dp"
                 android:layout_height="301dp"
-                android:scrollbars="horizontal">
-
-            </androidx.recyclerview.widget.RecyclerView>
+                android:scrollbars="horizontal" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/moveRight"
@@ -61,39 +57,25 @@
                 android:background="@drawable/main_screen_right_arrow"
                 android:text=" " />
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center"
-                android:orientation="vertical">
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/cloudBackup"
-                    android:layout_width="29dp"
-                    android:layout_height="27dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_weight="0"
-                    android:background="@drawable/cloud_button_icon" />
-
-                <androidx.appcompat.widget.AppCompatButton
-                    android:id="@+id/newDrawingButton"
-                    android:layout_width="120dp"
-                    android:layout_height="123dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_weight="0"
-                    android:background="@drawable/new_button_icon"
-                    android:padding="0dp" />
-            </LinearLayout>
-
         </LinearLayout>
 
-    </LinearLayout>
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/cloudBackup"
+            android:layout_width="34dp"
+            android:layout_height="30dp"
+            android:layout_marginTop="10dp"
+            android:layout_weight="0"
+            android:background="@drawable/cloud_button_icon"
+            android:text=" " />
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/fragmentContainerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:layout_editor_absoluteX="731dp"
-        tools:layout_editor_absoluteY="89dp" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/newDrawingButton"
+            android:layout_width="78dp"
+            android:layout_height="79dp"
+            android:layout_marginTop="10dp"
+            android:layout_weight="0"
+            android:background="@drawable/new_button_icon"
+            android:padding="0dp" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

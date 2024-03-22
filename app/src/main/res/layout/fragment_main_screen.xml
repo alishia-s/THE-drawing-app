@@ -46,8 +46,8 @@
 
             <androidx.compose.ui.platform.ComposeView
                 android:id="@+id/composeView"
-                android:layout_width="308dp"
-                android:layout_height="301dp"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
                 android:scrollbars="horizontal" />
 
             <androidx.appcompat.widget.AppCompatButton

@@ -4,18 +4,12 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.BitmapFactory.decodeFile
-import android.graphics.BitmapFactory.decodeStream
 import android.util.Log
-import androidx.lifecycle.asLiveData
-import androidx.lifecycle.map
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.io.File
-import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.util.Date
 
@@ -48,7 +42,7 @@ class DrawingAppRepository(private val scope: CoroutineScope,
             //source: https://stackoverflow.com/questions/65767693/android-save-bitmap-to-image-file
             try {
                 //change "drawing" into proper file name
-                val data = DrawingAppData(Date(), "drawing")
+                val data = DrawingAppData(Date(), "drawing${Date().toString()}}")
                 val dir = context.filesDir.path
                 val file = File(dir, "${data.name}.png")
 

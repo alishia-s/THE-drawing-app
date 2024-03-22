@@ -2,7 +2,6 @@ package com.the.drawingapp
 
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -21,7 +20,7 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
 
     fun initBitmap() {
         if(_canvasBitmap.value == null){
-            _canvasBitmap.value = Bitmap.createBitmap(1080, 1920, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.WHITE) }
+            _canvasBitmap.value = Bitmap.createBitmap(1000, 1000, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.WHITE) }
         }
     }
 
@@ -38,9 +37,8 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
         viewModelScope.launch{
             //repo.NUKE()
             repo.retrieveDrawing.collect{
-                for(m in it){
-                    Log.d("bitmap", "${it[pos]}")
-                    _canvasBitmap.value = m
+                if (pos < it.size){
+                    _canvasBitmap.value = it[pos];
                 }
             }
         }

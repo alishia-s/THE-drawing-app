@@ -120,8 +120,8 @@ class DrawableFragment: Fragment() {
 
         }
         binding.eraserButton.setOnClickListener {
-            //tool.activateEraser()
-            viewModel.restoreDrawing(0)       }
+            tool.activateEraser()
+        }
         binding.penButton.setOnClickListener {
             tool.activatePen()
         }

@@ -7,9 +7,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -26,7 +28,6 @@ import kotlinx.coroutines.flow.Flow
 class MainScreenFragment : Fragment() {
     private lateinit var binding: FragmentMainScreenBinding
     private val viewModel : DrawingViewModel by activityViewModels{DrawingViewModel.DrawingViewModelFactory((getActivity()?.application as DrawingApplication).drawingAppRepository)}
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -41,6 +42,7 @@ class MainScreenFragment : Fragment() {
         binding.composeView?.setContent {
             Log.d("ComposeView Setting Content", "${viewModel.savedCanvases}")
             SavedCanvasList(viewModel.savedCanvases)
+            viewModel.restoreDrawing(2)
         }
         return binding.root
     }
@@ -49,8 +51,9 @@ class MainScreenFragment : Fragment() {
     fun SavedCanvasList(savedCanvases: Flow<List<Bitmap>>) {
         val bitmaps by savedCanvases.collectAsState(initial = emptyList())
         Log.d("SavedCanvasList", "BitmapList size: ${bitmaps.size}")
-        Row {
-            bitmaps.forEach { bitmap ->
+        val scrollState = rememberScrollState()
+        Row(modifier = Modifier.horizontalScroll(scrollState)) {
+            bitmaps.reversed().forEach { bitmap ->
                 SavedCanvas(bitmap)
                 Spacer(modifier = Modifier.width(8.dp))
             }
@@ -63,7 +66,7 @@ fun SavedCanvas(canvas: Bitmap) {
     Log.d("SavedCanvas", "Creating image with Bitmap Width: ${canvas.width} and Height: ${canvas.height}")
     Image(
         bitmap = canvas.asImageBitmap(),
-        contentDescription = "A Saved Canvas",
+        contentDescription = "A Saved Canvas"
     )
 }
 

@@ -41,7 +41,7 @@ class MainScreenFragment : Fragment() {
         }
 
         viewModel.getAllDrawings()
-        binding.composeView?.setContent {
+        binding.composeView.setContent {
             Log.d("ComposeView Setting Content", "${viewModel.savedCanvases}")
             SavedCanvasList(viewModel.savedCanvases) { selectedBitmap ->
                 viewModel.updateBitmap(selectedBitmap)
@@ -51,16 +51,22 @@ class MainScreenFragment : Fragment() {
         return binding.root
     }
 
-    @Composable
-    fun SavedCanvasList(savedCanvases: Flow<List<Bitmap>>, onClick: (Bitmap) -> Unit) {
-        val bitmaps by savedCanvases.collectAsState(initial = emptyList())
-        Log.d("SavedCanvasList", "BitmapList size: ${bitmaps.size}")
-        val scrollState = rememberScrollState()
-        Row(modifier = Modifier.horizontalScroll(scrollState)) {
-            bitmaps.reversed().forEach { bitmap ->
+
+}
+
+@Composable
+fun SavedCanvasList(savedCanvases: Flow<List<Bitmap>>, onClick: (Bitmap) -> Unit) {
+    val bitmaps by savedCanvases.collectAsState(initial = emptyList())
+    Log.d("SavedCanvasList", "BitmapList size: ${bitmaps.size}")
+    val scrollState = rememberScrollState()
+    Row(modifier = Modifier.horizontalScroll(scrollState)) {
+        bitmaps.reversed().forEach { bitmap ->
+            if(bitmap == null) {
+                Log.d("SavedCanvasList", "Bitmap is null")
+            } else {
                 SavedCanvas(bitmap, onClick)
-                Spacer(modifier = Modifier.width(8.dp))
             }
+            Spacer(modifier = Modifier.width(8.dp))
         }
     }
 }
@@ -69,7 +75,7 @@ class MainScreenFragment : Fragment() {
 fun SavedCanvas(canvas: Bitmap, onClick: (Bitmap) -> Unit) {
     Image(
         bitmap = canvas.asImageBitmap(),
-        contentDescription = "A Saved Canvas",
+        contentDescription = canvas.toString(),
         modifier = Modifier.clickable {
             onClick(canvas)
         }

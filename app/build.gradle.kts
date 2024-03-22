@@ -44,6 +44,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.navigation:navigation-testing:2.7.7")
     ksp("androidx.room:room-compiler:2.6.1")
     annotationProcessor("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
@@ -75,7 +76,7 @@ dependencies {
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.0")
     androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
+    androidTestImplementation("androidx.navigation:navigation-testing:2.7.7")
 
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
@@ -83,14 +84,17 @@ dependencies {
 
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.activity:activity-compose:1.8.2")
-    implementation(platform("androidx.compose:compose-bom:2024.02.02"))
+    implementation(platform("androidx.compose:compose-bom:2024.03.00"))
     implementation("androidx.navigation:navigation-common-ktx:2.7.7")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")
 
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.6.4")
     implementation("androidx.compose.ui:ui:1.6.4")
     implementation("androidx.compose.ui:ui-graphics:1.6.4")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3:1.2.1")
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
+    androidTestImplementation("net.bytebuddy:byte-buddy-android:1.14.12")
 
 
 

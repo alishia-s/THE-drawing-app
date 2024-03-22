@@ -8,4 +8,5 @@ package com.the.drawingapp
 class DrawingAppUnitTests {
 
     //vm logic unit tests were used with Espresso, see DrawingAppInstrumentedTests
+
 }

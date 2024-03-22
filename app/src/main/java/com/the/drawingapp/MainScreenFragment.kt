@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -36,25 +37,28 @@ class MainScreenFragment : Fragment() {
         binding = FragmentMainScreenBinding.inflate(layoutInflater)
         binding.newDrawingButton.setOnClickListener {
             findNavController().navigate(R.id.action_mainScreenFragment_to_drawableFragment2)
+            viewModel.initBitmap()
         }
 
         viewModel.getAllDrawings()
         binding.composeView?.setContent {
             Log.d("ComposeView Setting Content", "${viewModel.savedCanvases}")
-            SavedCanvasList(viewModel.savedCanvases)
-            viewModel.restoreDrawing(2)
+            SavedCanvasList(viewModel.savedCanvases) { selectedBitmap ->
+                viewModel.updateBitmap(selectedBitmap)
+                findNavController().navigate(R.id.action_mainScreenFragment_to_drawableFragment2)
+            }
         }
         return binding.root
     }
 
     @Composable
-    fun SavedCanvasList(savedCanvases: Flow<List<Bitmap>>) {
+    fun SavedCanvasList(savedCanvases: Flow<List<Bitmap>>, onClick: (Bitmap) -> Unit) {
         val bitmaps by savedCanvases.collectAsState(initial = emptyList())
         Log.d("SavedCanvasList", "BitmapList size: ${bitmaps.size}")
         val scrollState = rememberScrollState()
         Row(modifier = Modifier.horizontalScroll(scrollState)) {
             bitmaps.reversed().forEach { bitmap ->
-                SavedCanvas(bitmap)
+                SavedCanvas(bitmap, onClick)
                 Spacer(modifier = Modifier.width(8.dp))
             }
         }
@@ -62,11 +66,13 @@ class MainScreenFragment : Fragment() {
 }
 
 @Composable
-fun SavedCanvas(canvas: Bitmap) {
-    Log.d("SavedCanvas", "Creating image with Bitmap Width: ${canvas.width} and Height: ${canvas.height}")
+fun SavedCanvas(canvas: Bitmap, onClick: (Bitmap) -> Unit) {
     Image(
         bitmap = canvas.asImageBitmap(),
-        contentDescription = "A Saved Canvas"
+        contentDescription = "A Saved Canvas",
+        modifier = Modifier.clickable {
+            onClick(canvas)
+        }
     )
 }
 

@@ -22,7 +22,6 @@ import com.the.drawingapp.databinding.FragmentDrawableBinding
 
 
 class DrawableFragment: Fragment() {
-    //activityByViewmodels not working...
     private val viewModel : DrawingViewModel by activityViewModels{DrawingViewModel.DrawingViewModelFactory((getActivity()?.application as DrawingApplication).drawingAppRepository)}
     private lateinit var binding: FragmentDrawableBinding
     private lateinit var drawingCanvas: Canvas
@@ -43,6 +42,7 @@ class DrawableFragment: Fragment() {
         initToolbarButtons()
         binding.backButton.setOnClickListener{
             findNavController().navigate(R.id.action_drawableFragment2_to_mainScreenFragment)
+            bitmap.eraseColor(Color.WHITE)
         }
         return binding.root
     }

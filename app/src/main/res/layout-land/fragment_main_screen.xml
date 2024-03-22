@@ -46,13 +46,11 @@
                 android:background="@drawable/main_screen_left_arrow"
                 android:text=" " />
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler"
-                android:layout_width="308dp"
-                android:layout_height="301dp"
-                android:scrollbars="horizontal">
-
-            </androidx.recyclerview.widget.RecyclerView>
+            <androidx.compose.ui.platform.ComposeView
+                android:id="@+id/composeView"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:scrollbars="horizontal" />
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/moveRight"

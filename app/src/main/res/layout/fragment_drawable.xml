@@ -44,8 +44,8 @@
 
     <com.the.drawingapp.DrawingView
         android:id="@+id/canvas"
-        android:layout_width="1000px"
-        android:layout_height="1000px"
+        android:layout_width="1050px"
+        android:layout_height="1050px"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

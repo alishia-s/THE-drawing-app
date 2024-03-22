@@ -20,7 +20,7 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
 
     fun initBitmap() {
         if(_canvasBitmap.value == null){
-            _canvasBitmap.value = Bitmap.createBitmap(1000, 1000, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.WHITE) }
+            _canvasBitmap.value = Bitmap.createBitmap(1200, 1200, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.WHITE) }
         }
     }
 
@@ -35,7 +35,6 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
     fun restoreDrawing(pos : Int)
     {
         viewModelScope.launch{
-            //repo.NUKE()
             repo.retrieveDrawing.collect{
                 if (pos < it.size){
                     _canvasBitmap.value = it[pos];

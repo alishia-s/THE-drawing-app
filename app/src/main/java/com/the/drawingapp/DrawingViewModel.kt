@@ -31,17 +31,16 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
         repo.saveDrawing(_canvasBitmap.value!!)
     }
 
-    //should be set to onclicklistener for the
-    fun restoreDrawing(pos : Int)
-    {
-        viewModelScope.launch{
-            repo.retrieveDrawing.collect{
-                if (pos < it.size){
-                    _canvasBitmap.value = it[pos];
-                }
-            }
-        }
-    }
+//    fun restoreDrawing(pos : Int)
+//    {
+//        viewModelScope.launch{
+//            repo.retrieveDrawing.collect{
+//                if (pos < it.size){
+//                    _canvasBitmap.value = it[pos];
+//                }
+//            }
+//        }
+//    }
 
     fun getAllDrawings(){
         viewModelScope.launch {

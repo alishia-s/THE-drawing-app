@@ -45,9 +45,11 @@ android {
 
 dependencies {
     implementation("androidx.navigation:navigation-testing:2.7.7")
+    implementation("androidx.test:runner:1.5.2")
     ksp("androidx.room:room-compiler:2.6.1")
     annotationProcessor("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
+    androidTestImplementation ("app.cash.turbine:turbine:0.9.0")
 
     implementation("com.google.firebase:protolite-well-known-types:18.0.0")
     implementation("androidx.datastore:datastore-core:1.0.0")
@@ -95,8 +97,9 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.2.1")
     androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation("net.bytebuddy:byte-buddy-android:1.14.12")
+    androidTestImplementation("com.google.truth:truth:1.0.1")
 
-
+    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
 
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")

@@ -19,6 +19,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.testing.TestNavHostController
+import androidx.room.Room
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -29,6 +30,7 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SmallTest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,7 +49,14 @@ import org.mockito.Mockito
 import org.mockito.Mockito.mock
 import org.mockito.MockitoAnnotations
 import com.the.drawingapp.MainScreenFragment
+import junit.framework.TestCase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import org.junit.After
+import org.junit.runner.manipulation.Ordering.Context
 import org.mockito.Mockito.`when`
+import java.io.IOException
+import java.util.Date
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -78,19 +87,26 @@ class DrawingAppInstrumentedTests {
         activityScenario.moveToState(Lifecycle.State.DESTROYED)
     }
 
-//    @Test
-//    fun doesGoBackButtonGoBackToMain() {
-//        val activityScenario: ActivityScenario<MainActivity> =
-//            ActivityScenario.launch(MainActivity::class.java)
-//        activityScenario.moveToState(Lifecycle.State.RESUMED)
-//        onView(withId(R.id.newDrawingButton)).perform(click())
-//        onView(withId(R.id.back_button)).perform(click())
-//
-//        //recycler only exists in main
-//        onView(withId(R.id.recycler)).check(matches(isDisplayed()))
-//        activityScenario.moveToState(Lifecycle.State.DESTROYED)
-//    }
+    private lateinit var dao : DrawingAppDao
+    private lateinit var db : DrawingAppDatabase
+    //private lateinit var vm: DrawingViewModel
+    private lateinit var scope : CoroutineScope
+    private lateinit var context : DrawingApplication
 
+    @Before
+    fun setup() {
+        context = ApplicationProvider.getApplicationContext()
+        db = Room.inMemoryDatabaseBuilder(context, DrawingAppDatabase::class.java)
+            .build()
+        dao = db.drawingAppDao()
+        scope = CoroutineScope(SupervisorJob())
+    }
+    @After
+    @Throws(IOException::class)
+    fun closedb(){
+        db.close()
+    }
+    //ui tests
     @Test
     //testing DrawingView
     fun isPenButtonClickable() {
@@ -135,139 +151,153 @@ class DrawingAppInstrumentedTests {
         activityScenario.moveToState(Lifecycle.State.DESTROYED)
     }
 
-//    @Test
-//    fun toggleToSquareShapeButton(){
-//        val activityScenario: ActivityScenario<MainActivity> =
-//            ActivityScenario.launch(MainActivity::class.java)
-//        activityScenario.moveToState(Lifecycle.State.RESUMED)
-//        onView(withId(R.id.newDrawingButton)).perform(click())
-//        onView(withId(R.id.shape_button)).perform(click())
-//        runBlocking {
-//            val tool = Tool()
-//            val isRectangle = true
-//            val lifecycleOwner = TestLifecycleOwner()
-//            lifecycleOwner.run {
-//                withContext(Dispatchers.Main) {
-//                    tool.toggleShape(isRectangle)
-//                }
-//                assertEquals(Paint.Cap.SQUARE, tool.paint.strokeCap!!)
-//            }
-//        }
-//        activityScenario.moveToState(Lifecycle.State.DESTROYED)
-//    }
+    @Test
+    fun toggleToSquareShapeButton(){
+        val activityScenario: ActivityScenario<MainActivity> =
+            ActivityScenario.launch(MainActivity::class.java)
+        activityScenario.moveToState(Lifecycle.State.RESUMED)
+        onView(withId(R.id.newDrawingButton)).perform(click())
+        onView(withId(R.id.shape_button)).perform(click())
+        runBlocking {
+            val isRectangle = true
+            val lifecycleOwner = TestLifecycleOwner()
+            lifecycleOwner.run {
+                withContext(Dispatchers.Main) {
+                    val vm = DrawingViewModel(DrawingAppRepository(scope, dao, context))
+                    val tool = vm.tool
+                    tool.toggleShape(isRectangle)
+                    assertEquals(Paint.Cap.SQUARE, tool.paint.strokeCap!!)
+                }
+            }
+        }
+        activityScenario.moveToState(Lifecycle.State.DESTROYED)
+    }
 
     /*Testing ViewModel logic*/
-//    @Test
-//    fun testViewModel_updatingBitmap() {
-//        runBlocking {
-//            val vm = DrawingViewModel()
-//            val newBitmap = Bitmap.createBitmap(400, 400, Bitmap.Config.ARGB_8888)
-//            var updatedBitmap = false
-//            val lifecycleOwner = TestLifecycleOwner()
-//            lifecycleOwner.run {
-//                withContext(Dispatchers.Main) {
-//                    //changing bitmap
-//                    vm.canvasBitmap.observe(lifecycleOwner)
-//                    {
-//                        updatedBitmap = true
-//                    }
-//                    //initialize bitMap
-//                    vm.initBitmap()
-//                    //update it
-//                    vm.updateBitmap(newBitmap)
-//
-//                    //bitmap is originally 800 x 800, check to see if size also changed
-//                    //so old one is replaced
-//                    assertEquals(400, vm.canvasBitmap.value!!.height)
-//                    assertEquals(400, vm.canvasBitmap.value!!.width)
-//                    assertTrue(updatedBitmap)
-//                }
-//            }
-//        }
-//    }
+    @Test
+    fun testViewModel_updatingBitmap() {
+        runBlocking {
+            val lifecycleOwner = TestLifecycleOwner()
+            lifecycleOwner.run {
+                withContext(Dispatchers.Main) {
+                    val vm = DrawingViewModel(DrawingAppRepository(scope, dao, context))
+                    val newBitmap = Bitmap.createBitmap(400, 400, Bitmap.Config.ARGB_8888)
+                    var updatedBitmap = false
+                    //changing bitmap
+                    vm.canvasBitmap.observe(lifecycleOwner)
+                    {
+                        updatedBitmap = true
+                    }
+                    //initialize bitMap
+                    vm.initBitmap()
+                    //update it
+                    vm.updateBitmap(newBitmap)
 
-//    @Test
-//    fun testingViewModel_initBitmap()
-//    {
-//        runBlocking {
-//            val vm = DrawingViewModel()
-//            val lifecycleOwner = TestLifecycleOwner()
-//            lifecycleOwner.run {
-//                withContext(Dispatchers.Main) {
-//                    //initialize bitMap
-//                    vm.initBitmap()
-//
-//                    //bitmap is originally 800 x 800, check to see if size also changed
-//                    //so old one is replaced
-//                    assertEquals(1920, vm.canvasBitmap.value!!.height)
-//                    assertEquals(1080, vm.canvasBitmap.value!!.width)
-//                }
-//            }
-//        }
-//
-//    }
+                    //bitmap is originally 800 x 800, check to see if size also changed
+                    //so old one is replaced
+                    assertEquals(400, vm.canvasBitmap.value!!.height)
+                    assertEquals(400, vm.canvasBitmap.value!!.width)
+                    assertTrue(updatedBitmap)
+                }
+            }
+        }
+    }
+
+    @Test
+    fun testingViewModel_initBitmap()
+    {
+        runBlocking {
+            val lifecycleOwner = TestLifecycleOwner()
+            lifecycleOwner.run {
+                withContext(Dispatchers.Main) {
+                    val vm = DrawingViewModel(DrawingAppRepository(scope, dao, context))
+
+                    //initialize bitMap
+                    vm.initBitmap()
+
+                    assertNotEquals(1920, vm.canvasBitmap.value!!.height)
+                    assertNotEquals(1080, vm.canvasBitmap.value!!.width)
+                }
+            }
+        }
+
+    }
 
     /*Testing Tool Logic*/
-//    @Test
-//    fun testingTool_updateColor(){
-//        runBlocking {
-//            val tool = Tool()
-//            //change color to red (#ff0000 -> int)
-//            val color = 0xFF000000.toInt()
-//            var updatedColor = false
-//            val lifecycleOwner = TestLifecycleOwner()
-//            lifecycleOwner.run {
-//                withContext(Dispatchers.Main) {
-//                    //color is set to an int, when starting, it's black
-//                    tool.activatePen()
-//                    //change color
-//                    tool.currentColor.observe(lifecycleOwner)
-//                    {
-//                        updatedColor = true
-//                    }
-//                    tool.updateColor(color)
-//                }
-//                assertEquals(color, tool.currentColor.value!!)
-//                assertTrue(updatedColor)
-//            }
-//        }
-//    }
-//    @Test
-//    fun testingTool_updateStrokeWidth(){
-//        runBlocking {
-//            val tool = Tool()
-//            val width = 13f
-//            var updatedWidth = false
-//            val lifecycleOwner = TestLifecycleOwner()
-//            lifecycleOwner.run {
-//                withContext(Dispatchers.Main) {
-//                    //set width to default value
-//                    tool.activatePen()
-//                    tool.strokeWidth.observe(lifecycleOwner)
-//                    {
-//                        updatedWidth = true
-//                    }
-//                    tool.updateStrokeWidth(width)
-//                }
-//                assertEquals(13f, tool.strokeWidth.value!!)
-//                assertTrue(updatedWidth)
-//            }
-//        }
-//    }
-//    @Test
-//    fun testingTool_toggleShape(){
-//        runBlocking {
-//            val tool = viewModel.tool
-//            val isCircle = false
-//            val lifecycleOwner = TestLifecycleOwner()
-//            lifecycleOwner.run {
-//                withContext(Dispatchers.Main) {
-//                    tool.toggleShape(isCircle)
-//                }
-//                assertEquals(Paint.Join.ROUND, tool.paint.strokeJoin!!)
-//            }
-//        }
-//    }
+    @Test
+    fun testingTool_updateColor(){
+        runBlocking {
+            val lifecycleOwner = TestLifecycleOwner()
+            lifecycleOwner.run {
+                withContext(Dispatchers.Main) {
+
+                    val vm = DrawingViewModel(DrawingAppRepository(scope, dao, context))
+                    val tool = vm.tool
+                    //change color to red (#ff0000 -> int)
+                    val color = 0xFF000000.toInt()
+                    var updatedColor = false
+
+                    //color is set to an int, when starting, it's black
+                    tool.activatePen()
+                    //change color
+                    tool.currentColor.observe(lifecycleOwner)
+                    {
+                        updatedColor = true
+                    }
+                    tool.updateColor(color)
+                    assertEquals(color, tool.currentColor.value!!)
+                    assertTrue(updatedColor)
+                }
+            }
+        }
+    }
+
+   @Test
+    fun testingTool_updateStrokeWidth(){
+        runBlocking {
+            val lifecycleOwner = TestLifecycleOwner()
+            lifecycleOwner.run {
+                withContext(Dispatchers.Main) {
+                    val vm = DrawingViewModel(DrawingAppRepository(scope, dao, context))
+                    val tool = vm.tool
+                    val width = 13f
+                    var updatedWidth = false
+
+                    //set width to default value
+                    tool.activatePen()
+                    tool.strokeWidth.observe(lifecycleOwner)
+                    {
+                        updatedWidth = true
+                    }
+                    tool.updateStrokeWidth(width)
+                    assertEquals(13f, tool.strokeWidth.value!!)
+                    assertTrue(updatedWidth)
+                }
+            }
+        }
+    }
+    @Test
+    fun testingTool_toggleShape(){
+        runBlocking {
+
+            val lifecycleOwner = TestLifecycleOwner()
+            lifecycleOwner.run {
+                withContext(Dispatchers.Main) {
+                    val vm = DrawingViewModel(DrawingAppRepository(scope, dao, context))
+                    val tool = vm.tool
+                    val isCircle = false
+
+                    tool.toggleShape(isCircle)
+                    assertEquals(Paint.Join.ROUND, tool.paint.strokeJoin!!)
+                }
+            }
+        }
+    }
+
+}
+
+@RunWith(AndroidJUnit4::class)
+class DrawingAppComposeTests {
 
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -289,7 +319,7 @@ class DrawingAppInstrumentedTests {
             SavedCanvasList(savedCanvases = bitmapFlow) {}
         }
 
-        bitmapFlow.value.forEachIndexed() { index, bitmap ->
+        bitmapFlow.value.forEachIndexed() { _, bitmap ->
             composeTestRule
                 .onNodeWithContentDescription(bitmap.toString(), useUnmergedTree = true)
                 .assertExists()
@@ -385,6 +415,4 @@ class DrawingAppInstrumentedTests {
 
         assert(navController.currentDestination?.id == R.id.drawableFragment2) // Use the correct destination ID
     }
-
-
 }

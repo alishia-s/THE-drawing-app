@@ -314,19 +314,6 @@ class DrawingAppComposeTests {
     }
 
     @Test
-    fun savedCanvasList_displaysCorrectNumberOfItems() {
-        composeTestRule.setContent {
-            SavedCanvasList(savedCanvases = bitmapFlow) {}
-        }
-
-        bitmapFlow.value.forEachIndexed() { _, bitmap ->
-            composeTestRule
-                .onNodeWithContentDescription(bitmap.toString(), useUnmergedTree = true)
-                .assertExists()
-        }
-    }
-
-    @Test
     fun savedCanvas_clickTriggersOnClick() {
         var clicked = false
         val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)

@@ -23,8 +23,7 @@ class DrawingAppRepository(private val scope: CoroutineScope,
             list.map{drawing : DrawingAppData ->
                 val file = File(drawing.name)
                 Log.d("file", "${drawing.name}")
-                if(!file.exists()){
-                }
+                if(!file.exists()){} // phase 2.5 change --> get rid of not used or was it a null check
                 val opts = BitmapFactory.Options().apply {
                     inMutable = true
                 }
@@ -67,7 +66,7 @@ class DrawingAppRepository(private val scope: CoroutineScope,
                 dao.saveDrawing(data)
                 Log.d("saving", "saved to ${data.name}")
             } catch (e: Exception) {
-                Log.d("saving", e.toString())
+                Log.d("saving", e.toString()) // phase 2.5 change --> make it into a toast
             }
         }
     }

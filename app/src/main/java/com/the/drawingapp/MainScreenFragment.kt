@@ -45,13 +45,11 @@ class MainScreenFragment : Fragment() {
             Log.d("ComposeView Setting Content", "${viewModel.savedCanvases}")
             SavedCanvasList(viewModel.savedCanvases) { selectedBitmap ->
                 viewModel.updateBitmap(selectedBitmap)
-                findNavController().navigate(R.id.action_mainScreenFragment_to_drawableFragment2)
+                findNavController().navigate(R.id.action_mainScreenFragment_to_drawableFragment2) //change --> using binding instead of r.id?
             }
         }
         return binding.root
     }
-
-
 }
 
 @Composable

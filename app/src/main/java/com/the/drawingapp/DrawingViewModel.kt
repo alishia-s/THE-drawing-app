@@ -2,6 +2,7 @@ package com.the.drawingapp
 
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel

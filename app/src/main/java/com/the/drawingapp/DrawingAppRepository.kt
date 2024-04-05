@@ -5,11 +5,16 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.BitmapFactory.decodeFile
 import android.util.Log
+import android.view.Gravity
+import android.widget.Toast
+import android.widget.Toast.LENGTH_LONG
 import androidx.annotation.OpenForTesting
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.util.Date
@@ -42,7 +47,8 @@ class DrawingAppRepository(private val scope: CoroutineScope,
             //source: https://stackoverflow.com/questions/65767693/android-save-bitmap-to-image-file
             try {
                 //change "drawing" into proper file name
-                val data = DrawingAppData(Date(), "drawing${Date().toString()}}")
+                val drawingName = "drawing${Date().toString()}}"
+                val data = DrawingAppData(Date(), drawingName)
                 val dir = context.filesDir.path
                 val file = File(dir, "${data.name}.png")
 
@@ -64,7 +70,12 @@ class DrawingAppRepository(private val scope: CoroutineScope,
                 data.replaceName(file.path)
 
                 dao.saveDrawing(data)
-                Log.d("saving", "saved to ${data.name}")
+//                Log.d("saving", "saved to ${data.name}")
+                withContext(Dispatchers.Main){
+                    val toast = Toast.makeText(context.applicationContext, "Saved to '${drawingName}' ", LENGTH_LONG)
+                    toast.setGravity(Gravity.TOP, 0, 0)
+                    toast.show()
+                }
             } catch (e: Exception) {
                 Log.d("saving", e.toString()) // phase 2.5 change --> make it into a toast
             }

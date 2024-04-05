@@ -192,7 +192,6 @@ class DrawingAppInstrumentedTests {
                     vm.initBitmap()
                     //update it
                     vm.updateBitmap(newBitmap)
-
                     //bitmap is originally 800 x 800, check to see if size also changed
                     //so old one is replaced
                     assertEquals(400, vm.canvasBitmap.value!!.height)
@@ -276,10 +275,10 @@ class DrawingAppInstrumentedTests {
             }
         }
     }
+
     @Test
     fun testingTool_toggleShape(){
         runBlocking {
-
             val lifecycleOwner = TestLifecycleOwner()
             lifecycleOwner.run {
                 withContext(Dispatchers.Main) {
@@ -293,7 +292,6 @@ class DrawingAppInstrumentedTests {
             }
         }
     }
-
 }
 
 @RunWith(AndroidJUnit4::class)

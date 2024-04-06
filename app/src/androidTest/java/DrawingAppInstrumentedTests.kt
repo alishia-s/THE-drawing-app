@@ -29,6 +29,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.take
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
@@ -39,6 +41,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
+import java.util.Date
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -273,6 +276,17 @@ class DrawingAppInstrumentedTests {
                 }
             }
         }
+    }
+
+    //testing db logic
+    //https://stackoverflow.com/questions/58589300/test-methods-of-room-dao-with-kotlin-coroutines-and-flow
+    @Test
+    fun testingDB_SavingAndGettingDrawings() = runTest{
+        val drawing = DrawingAppData(Date(), "drawing1")
+        dao.saveDrawing(drawing)
+        val list = dao.getAllDrawings().take(1).toList()
+        assertEquals(1, list.size)
+        assertEquals("drawing1", list.get(0).get(0).name)
     }
 }
 

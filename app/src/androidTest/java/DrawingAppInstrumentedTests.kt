@@ -8,6 +8,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
+import androidx.core.graphics.get
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.testing.TestNavHostController
@@ -16,6 +17,8 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
+import androidx.test.espresso.action.ViewActions.swipeLeft
+import androidx.test.espresso.action.ViewActions.swipeUp
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isClickable
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
@@ -391,5 +394,51 @@ class DrawingAppComposeTests {
             .performClick()
 
         assert(navController.currentDestination?.id == R.id.drawableFragment) // Use the correct destination ID
+    }
+
+
+}
+
+@RunWith(AndroidJUnit4::class)
+class DrawingAppDrawingTests {
+    private lateinit var activityScenario: ActivityScenario<MainActivity>
+    private var canvas: DrawingView? = null
+    @Before
+    fun setUp() {
+        activityScenario = ActivityScenario.launch(MainActivity::class.java)
+        activityScenario.moveToState(Lifecycle.State.RESUMED)
+        onView(withId(R.id.newDrawingButton)).perform(click())
+    }
+    @Test
+    fun currCanvas_CanDrawDot() {
+        onView(withId(R.id.canvas)).perform(click())
+        activityScenario.onActivity { activity ->
+            canvas = activity.findViewById(R.id.canvas)
+        }
+        assertEquals(Color.BLACK.toInt(), canvas?.getBitmap()?.get(500, 500))
+    }
+    @Test
+    fun currCanvas_CanDrawHorizontalLine() {
+        onView(withId(R.id.canvas)).perform(swipeLeft())
+        activityScenario.onActivity { activity ->
+            canvas = activity.findViewById(R.id.canvas)
+        }
+        assertEquals(Color.BLACK.toInt(), canvas?.getBitmap()?.get(300,500)) // Checks pixel at the middle of the canvas
+        assertEquals(Color.BLACK.toInt(), canvas?.getBitmap()?.get(400,500)) // Checks pixel at the middle of the canvas
+        assertEquals(Color.BLACK.toInt(), canvas?.getBitmap()?.get(500,500)) // Checks pixel at the middle of the canvas
+        assertEquals(Color.BLACK.toInt(), canvas?.getBitmap()?.get(600,500)) // Checks pixel at the middle of the canvas
+        assertEquals(Color.BLACK.toInt(), canvas?.getBitmap()?.get(700,500)) // Checks pixel at the middle of the canvas
+    }
+    @Test
+    fun currCanvas_CanDrawVerticalLine() {
+        onView(withId(R.id.canvas)).perform(swipeUp())
+        activityScenario.onActivity { activity ->
+            canvas = activity.findViewById(R.id.canvas)
+        }
+        assertEquals(Color.BLACK.toInt(), canvas?.getBitmap()?.get(500,300)) // Checks pixel at the middle of the canvas
+        assertEquals(Color.BLACK.toInt(), canvas?.getBitmap()?.get(500,400)) // Checks pixel at the middle of the canvas
+        assertEquals(Color.BLACK.toInt(), canvas?.getBitmap()?.get(500,500)) // Checks pixel at the middle of the canvas
+        assertEquals(Color.BLACK.toInt(), canvas?.getBitmap()?.get(500,600)) // Checks pixel at the middle of the canvas
+        assertEquals(Color.BLACK.toInt(), canvas?.getBitmap()?.get(500,700)) // Checks pixel at the middle of the canvas
     }
 }

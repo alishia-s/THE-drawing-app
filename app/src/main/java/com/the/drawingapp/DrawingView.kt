@@ -3,9 +3,7 @@ package com.the.drawingapp
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Color
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 
 class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) {
@@ -18,6 +16,10 @@ class DrawingView(context: Context, attrs: AttributeSet) : View(context, attrs) 
     fun setBitmap(bitmap: Bitmap){
         canvasBitmap = bitmap
         invalidate()
+    }
+
+    fun getBitmap(): Bitmap? {
+        return canvasBitmap
     }
 
 }

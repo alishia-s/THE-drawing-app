@@ -36,8 +36,7 @@ class MainScreenFragment : Fragment() {
     ): View? {
         binding = FragmentMainScreenBinding.inflate(layoutInflater)
         binding.newDrawingButton.setOnClickListener {
-            findNavController().navigate(R.id.action_mainScreenFragment_to_drawableFragment2)
-            viewModel.initBitmap()
+            findNavController().navigate(R.id.action_MainScreenToDrawableFragment)
         }
 
         viewModel.getAllDrawings()
@@ -45,7 +44,7 @@ class MainScreenFragment : Fragment() {
             Log.d("ComposeView Setting Content", "${viewModel.savedCanvases}")
             SavedCanvasList(viewModel.savedCanvases) { selectedBitmap ->
                 viewModel.updateBitmap(selectedBitmap)
-                findNavController().navigate(R.id.action_mainScreenFragment_to_drawableFragment2) //change --> using binding instead of r.id?
+                findNavController().navigate(R.id.action_MainScreenToDrawableFragment)
             }
         }
         return binding.root

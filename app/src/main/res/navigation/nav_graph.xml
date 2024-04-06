@@ -9,15 +9,15 @@
         android:name="com.the.drawingapp.MainScreenFragment"
         android:label="MainScreenFragment" >
         <action
-            android:id="@+id/action_mainScreenFragment_to_drawableFragment2"
-            app:destination="@id/drawableFragment2" />
+            android:id="@+id/action_MainScreenToDrawableFragment"
+            app:destination="@id/drawableFragment" />
     </fragment>
     <fragment
-        android:id="@+id/drawableFragment2"
+        android:id="@+id/drawableFragment"
         android:name="com.the.drawingapp.DrawableFragment"
         android:label="DrawableFragment" >
         <action
-            android:id="@+id/action_drawableFragment2_to_mainScreenFragment"
+            android:id="@+id/action_DrawableFragmentToMainScreen"
             app:destination="@id/mainScreenFragment" />
     </fragment>
 </navigation>

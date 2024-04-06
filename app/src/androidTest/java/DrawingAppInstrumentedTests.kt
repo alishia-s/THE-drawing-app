@@ -3,20 +3,12 @@ package com.the.drawingapp
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Paint
-import androidx.activity.ComponentActivity
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.compose.ui.geometry.isFinite
-import androidx.compose.ui.test.assertCountEquals
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.Observer
 import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.navigation.testing.TestNavHostController
 import androidx.room.Room
@@ -30,33 +22,20 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.isEnabled
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SmallTest
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.runBlockingTest
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
-import org.junit.Assert
+import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
-import org.mockito.Mockito.mock
-import org.mockito.MockitoAnnotations
-import com.the.drawingapp.MainScreenFragment
-import junit.framework.TestCase
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
-import org.junit.After
-import org.junit.runner.manipulation.Ordering.Context
-import org.mockito.Mockito.`when`
 import java.io.IOException
-import java.util.Date
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -404,13 +383,13 @@ class DrawingAppComposeTests {
             navController.setGraph(R.navigation.nav_graph)
             navController.setCurrentDestination(R.id.mainScreenFragment)
             SavedCanvasList(savedCanvases = savedCanvasesFlow) {
-                navController.navigate(R.id.drawableFragment2) // Use the correct action ID
+                navController.navigate(R.id.drawableFragment) // Use the correct action ID
             }
         }
 
         composeTestRule.onNodeWithContentDescription(bitmap.toString(), useUnmergedTree = true)
             .performClick()
 
-        assert(navController.currentDestination?.id == R.id.drawableFragment2) // Use the correct destination ID
+        assert(navController.currentDestination?.id == R.id.drawableFragment) // Use the correct destination ID
     }
 }

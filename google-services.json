@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "166008363480",
+    "project_id": "the-drawing-app-2dd5a",
+    "storage_bucket": "the-drawing-app-2dd5a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:166008363480:android:167ed684a1a6224e997aad",
+        "android_client_info": {
+          "package_name": "com.the.drawingapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDOB4KVCE_FhSNWKlU9ex6Bcj_ANEI1dW8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

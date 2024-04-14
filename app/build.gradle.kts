@@ -47,6 +47,7 @@ android {
 dependencies {
     implementation("androidx.navigation:navigation-testing:2.7.7")
     implementation("androidx.test:runner:1.5.2")
+    implementation("com.google.firebase:firebase-auth-ktx:22.3.1")
     ksp("androidx.room:room-compiler:2.6.1")
     annotationProcessor("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")

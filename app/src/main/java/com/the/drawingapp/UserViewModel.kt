@@ -58,13 +58,16 @@ class UserViewModel : ViewModel() {
         } else _authMessage.value = "Email or password cannot be blank."
     }
 
+    fun getUserID(): String? {
+        return firebaseAuth.currentUser?.uid
+    }
+
     fun logout() {
         firebaseAuth.signOut()
     }
 
     override fun onCleared() {
         super.onCleared()
-        firebaseAuth.signOut()
         firebaseAuth.removeAuthStateListener(authStateListener)
     }
 

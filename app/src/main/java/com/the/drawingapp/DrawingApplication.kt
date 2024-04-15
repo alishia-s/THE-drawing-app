@@ -13,7 +13,9 @@ class DrawingApplication : Application(){
         applicationContext,
         DrawingAppDatabase::class.java,
         "drawingapp_database"
-    ).build()}
+    )
+        .fallbackToDestructiveMigration()
+        .build()}
 
     val drawingAppRepository by lazy{DrawingAppRepository(scope, db.drawingAppDao(), applicationContext)}
 }

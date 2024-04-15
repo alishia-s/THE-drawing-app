@@ -20,7 +20,9 @@ class Converters {
 //when save is pressed, save and send it as a DrawingAppData
 @Entity(tableName = "drawings")
 data class DrawingAppData(var timestamp: Date,
-                          var name : String) {
+                          var name : String,
+                          var imageUrl : String? = null,
+                          var isSynced : Boolean = false) {
     //will autoincrement
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0

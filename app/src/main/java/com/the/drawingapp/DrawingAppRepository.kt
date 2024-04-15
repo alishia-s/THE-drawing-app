@@ -8,13 +8,15 @@ import android.util.Log
 import android.view.Gravity
 import android.widget.Toast
 import android.widget.Toast.LENGTH_LONG
-import androidx.annotation.OpenForTesting
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.util.Date
@@ -22,62 +24,129 @@ import java.util.Date
 class DrawingAppRepository(private val scope: CoroutineScope,
                            private val dao: DrawingAppDao, private val context: Context) {
 
+    private val userViewModel = UserViewModel()
+    private val firestore = FirebaseFirestore.getInstance()
+    private val storage = FirebaseStorage.getInstance()
+
     //var allDrawings = mutableListOf<Bitmap>()
-    val retrieveDrawing:Flow<List<Bitmap>> = dao.getAllDrawings()
-        .map{list: List<DrawingAppData> ->
-            list.map{drawing : DrawingAppData ->
-                val file = File(drawing.name)
-                Log.d("file", "${drawing.name}")
-                if(!file.exists()){} // phase 2.5 change --> get rid of not used or was it a null check
-                val opts = BitmapFactory.Options().apply {
-                    inMutable = true
-                }
-                decodeFile(file.path, opts)
+    val retrieveDrawing: Flow<List<Bitmap?>> = dao.getAllDrawings()
+        .map { list ->
+            list.map { drawing ->
+                retrieveBitmapFromFile(drawing.name)
             }
         }
+
+    private fun retrieveBitmapFromFile(fileName: String): Bitmap? {
+        val dir = context.filesDir.path
+        val file = File(dir, fileName)
+        if (!file.exists()) {
+            Log.e("Repository", "File $dir + $fileName does not exist")
+            return null
+        }
+
+        val opts = BitmapFactory.Options().apply {
+            inMutable = true
+            inPreferredConfig = Bitmap.Config.ARGB_8888
+        }
+
+        return try {
+            decodeFile(file.absolutePath, opts)
+        } catch (e: Exception) {
+            Log.e("Repository", "Failed to decode file")
+            null
+        }
+    }
 
     fun NUKE(){
         scope.launch {
             dao.NUKEITALL()
         }
     }
+    
     fun saveDrawing(drawing : Bitmap)
     {
-        scope.launch {
-            //source: https://stackoverflow.com/questions/65767693/android-save-bitmap-to-image-file
-            try {
-                //change "drawing" into proper file name
-                val drawingName = "drawing${Date().toString()}}"
-                val data = DrawingAppData(Date(), drawingName)
-                val dir = context.filesDir.path
-                val file = File(dir, "${data.name}.png")
+        scope.launch(Dispatchers.IO) {
+            val localPath = saveDrawingLocal(drawing)
+            if (userViewModel.getUserID() != null) {
+                uploadToFirebase(drawing, System.currentTimeMillis().toString(), localPath)
+            } else {
+                Log.e("upload", "User not logged in")
+            }
+        }
+    }
 
-                if (!file.exists()) {
-                    Log.d("saving", "creating new file")
-                    file.createNewFile()
+    private suspend fun saveDrawingLocal(drawing: Bitmap): String {
+        val fileName = "${System.currentTimeMillis()}.png"
+        val file = File(context.filesDir, fileName)
+        withContext(Dispatchers.IO) {
+            FileOutputStream(file).use {
+                drawing.compress(Bitmap.CompressFormat.PNG, 100, it)
+            }
+        }
+        val drawingData = DrawingAppData(Date(), fileName)
+        dao.saveDrawing(drawingData)
+
+        return file.absolutePath
+    }
+
+    private fun uploadToFirebase(drawing: Bitmap, drawingName: String, localPath: String) {
+        val userID = userViewModel.getUserID() ?: return
+        val storageRef = storage.reference.child("drawings/$userID/${drawingName}.png")
+        val baos = ByteArrayOutputStream()
+        drawing.compress(Bitmap.CompressFormat.PNG, 100, baos)
+        val data = baos.toByteArray()
+        
+        storageRef.putBytes(data).addOnCompleteListener {
+            storageRef.downloadUrl.addOnCompleteListener() { uri -> 
+                val drawingUrl = uri.toString()
+                saveDrawingUrlToFirestore(userID, drawingUrl, drawingName, localPath)
+            }.addOnFailureListener {
+                Log.d("upload", "Failed to upload drawing")
+                scope.launch(Dispatchers.Main) {
+                    Toast.makeText(context, "Failed to upload drawing", Toast.LENGTH_SHORT).show()
                 }
+            }
+        }
+    }
 
-                //sanity check
-                else{
-                    Log.d("saving", "using existing file: ${file.path}")
-                }
+    private fun saveDrawingUrlToFirestore(userId:String, drawingUrl: String, drawingName: String, localPath: String) {
+        val drawingData = hashMapOf(
+            "owner" to userId,
+            "url" to drawingUrl,
+            "name" to drawingName,
+            "localPath" to localPath,
+            "timestamp" to System.currentTimeMillis()
+        )
+        firestore.collection("drawings").add(drawingData).addOnSuccessListener {
+            Log.d("upload", "Drawing uploaded to Firestore")
+            scope.launch(Dispatchers.Main) {
+                Toast.makeText(context, "Drawing uploaded to Firebase Cloud", Toast.LENGTH_SHORT).show()
+            }
+        }.addOnFailureListener {
+            Log.d("upload", "Failed to upload drawing to Firestore")
+            scope.launch(Dispatchers.Main) {
+                Toast.makeText(context, "Failed to upload drawing", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
-                val out = FileOutputStream(file)
-                drawing.compress(Bitmap.CompressFormat.PNG, 100, out)
-                out.flush()
-                out.close()
-
-                data.replaceName(file.path)
-
-                dao.saveDrawing(data)
-//                Log.d("saving", "saved to ${data.name}")
-                withContext(Dispatchers.Main){
-                    val toast = Toast.makeText(context.applicationContext, "Saved to '${drawingName}' ", LENGTH_LONG)
-                    toast.setGravity(Gravity.TOP, 0, 0)
-                    toast.show()
-                }
-            } catch (e: Exception) {
-                Log.d("saving", e.toString()) // phase 2.5 change --> make it into a toast
+    fun shareDrawingWithUser(drawingId: String, userId: String) {
+        val drawingRef = firestore.collection("drawings").document(drawingId)
+        firestore.runTransaction() { transaction->
+            val snapshot = transaction.get(drawingRef)
+            val sharedWith = snapshot.get("sharedWith") as? List<String> ?: emptyList()
+            if (userId !in sharedWith) {
+                transaction.update(drawingRef, "sharedWith", sharedWith + userId)
+            }
+        }.addOnSuccessListener {
+            Log.d("share", "Drawing shared with user")
+            scope.launch(Dispatchers.Main) {
+                Toast.makeText(context, "Drawing shared with user", Toast.LENGTH_SHORT).show()
+            }
+        }.addOnFailureListener {
+            Log.d("share", "Failed to share drawing with user")
+            scope.launch(Dispatchers.Main) {
+                Toast.makeText(context, "Failed to share drawing with user", Toast.LENGTH_SHORT).show()
             }
         }
     }

@@ -16,7 +16,7 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
     private val _canvasBitmap = MutableLiveData<Bitmap>()
     val canvasBitmap: LiveData<Bitmap> = _canvasBitmap
     private val _savedCanvases = MutableStateFlow<List<Bitmap>>(emptyList())
-    val savedCanvases: Flow<List<Bitmap>> = _savedCanvases
+    val savedCanvases: Flow<List<Bitmap?>> = _savedCanvases
     val tool = Tool()
 
     fun initBitmap() {
@@ -46,9 +46,19 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
     fun getAllDrawings(){
         viewModelScope.launch {
             repo.retrieveDrawing.collect{
-                drawings -> _savedCanvases.value = drawings
+                drawings -> _savedCanvases.value = drawings as List<Bitmap>
             }
         }
+    }
+
+    fun shareDrawing(drawingId: String, userIds: List<String>){
+        userIds.forEach { userId ->
+            repo.shareDrawingWithUser(drawingId, userId)
+        }
+    }
+
+    fun NUKE(){
+        repo.NUKE()
     }
 
 

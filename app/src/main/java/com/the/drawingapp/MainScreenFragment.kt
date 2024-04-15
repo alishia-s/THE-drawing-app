@@ -44,6 +44,7 @@ class MainScreenFragment : Fragment() {
         binding.cloudBackup.setOnClickListener() {
             userViewModel.logout()
             findNavController().navigate(R.id.LoginFragment)
+//            viewModel.NUKE()
         }
 
         viewModel.getAllDrawings()
@@ -59,7 +60,7 @@ class MainScreenFragment : Fragment() {
 }
 
 @Composable
-fun SavedCanvasList(savedCanvases: Flow<List<Bitmap>>, onClick: (Bitmap) -> Unit) {
+fun SavedCanvasList(savedCanvases: Flow<List<Bitmap?>>, onClick: (Bitmap) -> Unit) {
     val bitmaps by savedCanvases.collectAsState(initial = emptyList())
     Log.d("SavedCanvasList", "BitmapList size: ${bitmaps.size}")
     val scrollState = rememberScrollState()

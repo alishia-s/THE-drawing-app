@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.Flow
 class MainScreenFragment : Fragment() {
     private lateinit var binding: FragmentMainScreenBinding
     private val viewModel : DrawingViewModel by activityViewModels{DrawingViewModel.DrawingViewModelFactory((getActivity()?.application as DrawingApplication).drawingAppRepository)}
+    private val userViewModel: UserViewModel by activityViewModels()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -37,6 +38,12 @@ class MainScreenFragment : Fragment() {
         binding = FragmentMainScreenBinding.inflate(layoutInflater)
         binding.newDrawingButton.setOnClickListener {
             findNavController().navigate(R.id.action_MainScreenToDrawableFragment)
+        }
+
+        // TODO: Get rid of this and replace it with a logout button
+        binding.cloudBackup.setOnClickListener() {
+            userViewModel.logout()
+            findNavController().navigate(R.id.LoginFragment)
         }
 
         viewModel.getAllDrawings()

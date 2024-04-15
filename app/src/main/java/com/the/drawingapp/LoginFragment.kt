@@ -1,6 +1,7 @@
 package com.the.drawingapp
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,10 +21,13 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -35,63 +39,44 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 
 class LoginFragment : Fragment() {
-    private lateinit var auth: FirebaseAuth
+    private val userViewModel by viewModels<UserViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        auth = FirebaseAuth.getInstance()
+
 
         return ComposeView(requireContext()).apply {
             setContent {
-                LoginScreen (
-                    onLogin = { email, password -> loginUser(email, password) },
-                    onSignup = { email, password -> createUser(email, password) }
-                )
+                userViewModel.logout()
+                LoginScreen (userViewModel)
             }
-        }
-    }
-
-    private fun loginUser(email: String, password: String) {
-        auth.signInWithEmailAndPassword(email, password)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    findNavController().navigate(R.id.action_LoginFragmentToMainScreen)
-                } else {
-                    Toast.makeText(context, "Authentication failed.", Toast.LENGTH_SHORT).show()
-                }
-            }
-    }
-
-    private fun createUser(email: String, password: String) {
-        if(email.isNotEmpty() && password.isNotEmpty()) {
-            auth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener { task ->
-                    if (task.isSuccessful) {
-                        findNavController().navigate(R.id.action_LoginFragmentToMainScreen)
-                    } else {
-                        Toast.makeText(context, "Sign up failed.", Toast.LENGTH_SHORT).show()
-                    }
-                }
         }
     }
 
     @Composable
-    fun LoginScreen(
-        onLogin: (String, String) -> Unit,
-        onSignup: (String, String) -> Unit) {
-
+    fun LoginScreen(userViewModel: UserViewModel = viewModel()) {
         var email by remember { mutableStateOf("") }
         var password by remember { mutableStateOf("") }
         var passwordVisibility by remember { mutableStateOf(false) }
+        val user = userViewModel.user.collectAsState()
+        val authMessage = userViewModel.authMessage.collectAsState(initial = null)
+
+        if (user.value != null) {
+            findNavController().navigate(R.id.action_LoginFragmentToMainScreen)
+            Toast.makeText(context, authMessage.value ?: "Success", Toast.LENGTH_LONG).show()
+        }
 
         Column (
             modifier = Modifier
@@ -100,13 +85,18 @@ class LoginFragment : Fragment() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
+            // Email TextField
             TextField(
                 value = email,
                 onValueChange = { email = it },
                 label = { Text("Email") },
                 modifier = Modifier.fillMaxWidth()
             )
+
             Spacer(modifier = Modifier.height(8.dp))
+
+            // Password TextField
             TextField(
                 value = password,
                 onValueChange = { password = it },
@@ -128,18 +118,35 @@ class LoginFragment : Fragment() {
                     }
                 }
             )
+
             Spacer(modifier = Modifier.height(16.dp))
+            if(authMessage.value != null) {
+                Text(
+                    text = authMessage.value!!,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+            }
+
+            // Sign In Button
             Button(
-                onClick = { onLogin(email, password) },
-                modifier = Modifier.fillMaxWidth()
+                onClick = { userViewModel.login(email, password) },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(Color.Blue)
             ) {
                 Text("Login")
             }
+
             Spacer(modifier = Modifier.height(8.dp))
+
+            // Signup Button
             Button(
-                onClick = { onSignup(email,password) },
+                onClick = { userViewModel.signUp(email, password) },
                 modifier = Modifier.fillMaxWidth(),
-                colors = ButtonDefaults.buttonColors(Color.Gray)
+                colors = ButtonDefaults.buttonColors(Color.Blue)
             ){
                     Text("Sign Up")
             }

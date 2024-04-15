@@ -5,13 +5,12 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.BitmapFactory.decodeFile
 import android.util.Log
-import android.view.Gravity
 import android.widget.Toast
-import android.widget.Toast.LENGTH_LONG
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -63,67 +62,59 @@ class DrawingAppRepository(private val scope: CoroutineScope,
         }
     }
     
-    fun saveDrawing(drawing : Bitmap)
-    {
+    fun saveDrawing(drawing : Bitmap) {
         scope.launch(Dispatchers.IO) {
-            val localPath = saveDrawingLocal(drawing)
-            if (userViewModel.getUserID() != null) {
-                uploadToFirebase(drawing, System.currentTimeMillis().toString(), localPath)
-            } else {
-                Log.e("upload", "User not logged in")
+            val fileName = "${System.currentTimeMillis()}.png"
+            val file = File(context.filesDir, fileName)
+            withContext(Dispatchers.IO) {
+                FileOutputStream(file).use {
+                    drawing.compress(Bitmap.CompressFormat.PNG, 100, it)
+                }
             }
+            val drawingData = DrawingAppData(Date(), fileName, file.path)
+            dao.saveDrawing(drawingData)
+            uploadToCloud(drawing, drawingData)
         }
     }
 
-    private suspend fun saveDrawingLocal(drawing: Bitmap): String {
-        val fileName = "${System.currentTimeMillis()}.png"
-        val file = File(context.filesDir, fileName)
-        withContext(Dispatchers.IO) {
-            FileOutputStream(file).use {
-                drawing.compress(Bitmap.CompressFormat.PNG, 100, it)
-            }
-        }
-        val drawingData = DrawingAppData(Date(), fileName)
-        dao.saveDrawing(drawingData)
-
-        return file.absolutePath
-    }
-
-    private fun uploadToFirebase(drawing: Bitmap, drawingName: String, localPath: String) {
+    private fun uploadToCloud(drawing: Bitmap, drawingData: DrawingAppData) {
         val userID = userViewModel.getUserID() ?: return
-        val storageRef = storage.reference.child("drawings/$userID/${drawingName}.png")
+        val storageRef = storage.reference.child("drawings/$userID/${drawingData.name}")
         val baos = ByteArrayOutputStream()
         drawing.compress(Bitmap.CompressFormat.PNG, 100, baos)
         val data = baos.toByteArray()
         
-        storageRef.putBytes(data).addOnCompleteListener {
-            storageRef.downloadUrl.addOnCompleteListener() { uri -> 
-                val drawingUrl = uri.toString()
-                saveDrawingUrlToFirestore(userID, drawingUrl, drawingName, localPath)
-            }.addOnFailureListener {
-                Log.d("upload", "Failed to upload drawing")
-                scope.launch(Dispatchers.Main) {
-                    Toast.makeText(context, "Failed to upload drawing", Toast.LENGTH_SHORT).show()
+        storageRef.putBytes(data).addOnCompleteListener { task ->
+            if (task.isSuccessful) {
+                storageRef.downloadUrl.addOnCompleteListener() { uri ->
+                    val drawingUrl = uri.toString()
+                    scope.launch(Dispatchers.IO) { dao.updateDrawingCloudStatus(drawingData.id.toString(), drawingUrl, true) }
+                    updateDrawingInfoToFirestore(userID, drawingUrl, drawingData)
+                }.addOnFailureListener {
+                    Log.d("upload", "Failed to upload drawing")
+                    scope.launch(Dispatchers.Main) {
+                        Toast.makeText(context, "Failed to upload drawing", Toast.LENGTH_SHORT).show()
+                    }
                 }
             }
         }
     }
 
-    private fun saveDrawingUrlToFirestore(userId:String, drawingUrl: String, drawingName: String, localPath: String) {
-        val drawingData = hashMapOf(
+    private fun updateDrawingInfoToFirestore(userId:String, drawingUrl: String, drawingData: DrawingAppData) {
+        val drawingInfo = hashMapOf(
             "owner" to userId,
             "url" to drawingUrl,
-            "name" to drawingName,
-            "localPath" to localPath,
-            "timestamp" to System.currentTimeMillis()
+            "name" to drawingData.name,
+            "timestamp" to drawingData.timestamp.time
         )
-        firestore.collection("drawings").add(drawingData).addOnSuccessListener {
-            Log.d("upload", "Drawing uploaded to Firestore")
+        firestore.collection("drawings").document(drawingData.name).set(drawingInfo)
+            .addOnSuccessListener {
+            Log.d("upload", "Drawing information deployed to Firestore")
             scope.launch(Dispatchers.Main) {
                 Toast.makeText(context, "Drawing uploaded to Firebase Cloud", Toast.LENGTH_SHORT).show()
             }
         }.addOnFailureListener {
-            Log.d("upload", "Failed to upload drawing to Firestore")
+            Log.d("upload", "Failed to upload drawing info to Firestore")
             scope.launch(Dispatchers.Main) {
                 Toast.makeText(context, "Failed to upload drawing", Toast.LENGTH_SHORT).show()
             }

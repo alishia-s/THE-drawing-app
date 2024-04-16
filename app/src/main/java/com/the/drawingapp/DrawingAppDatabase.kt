@@ -13,7 +13,7 @@ import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import kotlinx.coroutines.flow.Flow
 
-@Database(entities= [DrawingAppData::class], version = 2, exportSchema = false)
+@Database(entities= [DrawingAppData::class], version = 3, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class DrawingAppDatabase : RoomDatabase() {
     abstract fun drawingAppDao() : DrawingAppDao
@@ -49,17 +49,20 @@ interface DrawingAppDao
     suspend fun saveDrawing(data: DrawingAppData)
 
     /**
-     * Retrieves all drawings from the database
+     * Retrieves only the user's drawings from DB. Query recommended by Copilot.
      */
-    @Query("SELECT * from drawings")
-    fun getAllDrawings() : Flow<List<DrawingAppData>>
+    @Query("SELECT * from drawings WHERE userId = :userId OR ',' || sharedWith || ',' LIKE '%,' || :userId || ',%'")
+    fun getUserDrawings(userId: String) : Flow<List<DrawingAppData>>
 
-    @Query("UPDATE drawings SET imageUrl = :imageUrl, isSynced = :isSynced WHERE id = :id")
-    suspend fun updateDrawingCloudStatus(id: String, imageUrl: String?, isSynced: Boolean)
+    @Query("UPDATE drawings SET imageUrl = :imageUrl, isSynced = :isSynced, sharedWith = :sharedWith WHERE id = :id")
+    suspend fun updateDrawingCloudStatus(id: Int, imageUrl: String?, isSynced: Boolean, sharedWith: String)
 
     @Query("SELECT EXISTS(SELECT 1 FROM drawings WHERE imageUrl = :imageUrl)")
     suspend fun exists(imageUrl: String?): Boolean
 
+    @Query("SELECT * from drawings WHERE id = :id")
+    suspend fun getDrawingById(id: Int): DrawingAppData
+
     @Query("Delete from drawings")
-    fun NUKEITALL()
+    suspend fun NUKEITALL()
 }

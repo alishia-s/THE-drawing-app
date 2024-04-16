@@ -2,6 +2,7 @@ package com.the.drawingapp
 
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -15,9 +16,10 @@ import kotlinx.coroutines.launch
 class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
     private val _canvasBitmap = MutableLiveData<Bitmap>()
     val canvasBitmap: LiveData<Bitmap> = _canvasBitmap
-    private val _savedCanvases = MutableStateFlow<List<Bitmap>>(emptyList())
+    private val _savedCanvases = MutableStateFlow<List<Bitmap?>>(emptyList())
     val savedCanvases: Flow<List<Bitmap?>> = _savedCanvases
     val tool = Tool()
+    private val userViewModel = UserViewModel()
 
     fun initBitmap() {
         if(_canvasBitmap.value == null){
@@ -32,6 +34,19 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
         repo.saveDrawing(_canvasBitmap.value!!)
     }
 
+    fun syncWithCloud() {
+        viewModelScope.launch {
+            try {
+                val images = repo.retrieveUserImagesFromCloud(userViewModel.getUserID() ?: "")
+                _savedCanvases.value = images
+                Log.d("DrawingViewModel", "Synced ${userViewModel.getUserID() ?: ""} with cloud, retrieved ${images.size} images")
+            } catch (e: Exception) {
+                Log.e("DrawingViewModel", e.localizedMessage ?: "Error syncing with cloud")
+            }
+        }
+    }
+
+
 //    fun restoreDrawing(pos : Int)
 //    {
 //        viewModelScope.launch{
@@ -43,15 +58,15 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
 //        }
 //    }
 
-    fun getAllDrawings(){
+    fun getAllUserDrawings(){
         viewModelScope.launch {
-            repo.retrieveDrawing.collect{
-                drawings -> _savedCanvases.value = drawings as List<Bitmap>
+            repo.getAllUserDrawings().collect {
+                _savedCanvases.value = it
             }
         }
     }
 
-    fun shareDrawing(drawingId: String, userIds: List<String>){
+    fun shareDrawing(drawingId: Int, userIds: List<String>){
         userIds.forEach { userId ->
             repo.shareDrawingWithUser(drawingId, userId)
         }

@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.Flow
 
 class MainScreenFragment : Fragment() {
     private lateinit var binding: FragmentMainScreenBinding
-    private val viewModel : DrawingViewModel by activityViewModels{DrawingViewModel.DrawingViewModelFactory((getActivity()?.application as DrawingApplication).drawingAppRepository)}
+    private val drawingViewModel : DrawingViewModel by activityViewModels{DrawingViewModel.DrawingViewModelFactory((getActivity()?.application as DrawingApplication).drawingAppRepository)}
     private val userViewModel: UserViewModel by activityViewModels()
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -40,18 +40,26 @@ class MainScreenFragment : Fragment() {
             findNavController().navigate(R.id.action_MainScreenToDrawableFragment)
         }
 
-        // TODO: Get rid of this and replace it with a logout button
+
         binding.cloudBackup.setOnClickListener() {
-            userViewModel.logout()
-            findNavController().navigate(R.id.LoginFragment)
-//            viewModel.NUKE()
+            drawingViewModel.syncWithCloud()
         }
 
-        viewModel.getAllDrawings()
+        // TODO: make actual logout and nuke button
+        binding.moveLeft.setOnClickListener() {
+            userViewModel.logout()
+            findNavController().navigate(R.id.LoginFragment)
+        }
+
+        binding.moveRight.setOnClickListener() {
+            drawingViewModel.NUKE()
+        }
+
+        drawingViewModel.getAllUserDrawings()
         binding.composeView.setContent {
-            Log.d("ComposeView Setting Content", "${viewModel.savedCanvases}")
-            SavedCanvasList(viewModel.savedCanvases) { selectedBitmap ->
-                viewModel.updateBitmap(selectedBitmap)
+            Log.d("ComposeView Setting Content", "${drawingViewModel.savedCanvases}")
+            SavedCanvasList(drawingViewModel.savedCanvases) { selectedBitmap ->
+                drawingViewModel.updateBitmap(selectedBitmap)
                 findNavController().navigate(R.id.action_MainScreenToDrawableFragment)
             }
         }

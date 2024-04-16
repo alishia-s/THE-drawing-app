@@ -10,14 +10,18 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.net.URL
 import java.util.Date
 
 class DrawingAppRepository(private val scope: CoroutineScope,
@@ -28,12 +32,12 @@ class DrawingAppRepository(private val scope: CoroutineScope,
     private val storage = FirebaseStorage.getInstance()
 
     //var allDrawings = mutableListOf<Bitmap>()
-    val retrieveDrawing: Flow<List<Bitmap?>> = dao.getAllDrawings()
-        .map { list ->
-            list.map { drawing ->
-                retrieveBitmapFromFile(drawing.name)
-            }
+    fun getAllUserDrawings(): Flow<List<Bitmap?>> {
+        val userId = userViewModel.getUserID() ?: ""
+        return dao.getUserDrawings(userId).map { drawings ->
+            drawings.map { drawing -> retrieveBitmapFromFile(drawing.name) }
         }
+    }
 
     private fun retrieveBitmapFromFile(fileName: String): Bitmap? {
         val dir = context.filesDir.path
@@ -56,6 +60,62 @@ class DrawingAppRepository(private val scope: CoroutineScope,
         }
     }
 
+    suspend fun retrieveUserImagesFromCloud(userId: String): List<Bitmap> = withContext(Dispatchers.IO) {
+        try {
+            val docs = firestore.collection("drawings")
+                .whereEqualTo("owner", userId)
+                .get()
+                .await()
+
+            val urls = docs.documents.mapNotNull { it.getString("url") }
+            if (urls.isNotEmpty()) downloadImages(urls)
+            else emptyList()
+        } catch (e: Exception){
+            throw e
+        }
+    }
+
+
+    private suspend fun downloadImages(urls: List<String>): List<Bitmap> = coroutineScope {
+        val imageTasks = urls.map { url ->
+            async(Dispatchers.IO) {
+                try {
+                    val storageRef = storage.getReferenceFromUrl(url)
+                    val oneMegabyte: Long = 1024 * 1024
+                    val bytes = storageRef.getBytes(oneMegabyte).await()
+                    val bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
+                    if (bitmap != null) {
+                        saveImageLocally(bitmap, url)
+                        Log.d("Repository", "Downloaded image $bitmap")
+                    } else Log.e("Repository", "Failed to download image")
+                    bitmap
+                } catch (e: Exception) {
+                    Log.e("Repository", "Failed to download image from $url", e)
+                    null // Return null if an error occurs, allowing other downloads to continue
+                }
+            }
+        }
+        imageTasks.awaitAll().filterNotNull() // Collect the results, filtering out any nulls
+    }
+
+    private suspend fun saveImageLocally(bitmap: Bitmap, url: String) {
+        val fileName = url.substringAfterLast("/") // Get filename
+        val file = File(context.filesDir, fileName)
+        withContext(Dispatchers.IO) {
+            FileOutputStream(file).use {
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+            }
+        }
+        val drawingData = DrawingAppData(
+            userId = userViewModel.getUserID() ?: "",
+            name = fileName,
+            timestamp = Date(),
+            imageUrl = url,
+            isSynced = true
+        )
+        dao.saveDrawing(drawingData)
+    }
+
     fun NUKE(){
         scope.launch {
             dao.NUKEITALL()
@@ -71,7 +131,8 @@ class DrawingAppRepository(private val scope: CoroutineScope,
                     drawing.compress(Bitmap.CompressFormat.PNG, 100, it)
                 }
             }
-            val drawingData = DrawingAppData(Date(), fileName, file.path)
+            val userId = userViewModel.getUserID()
+            val drawingData = DrawingAppData(userId ?: "", fileName, Date())
             dao.saveDrawing(drawingData)
             uploadToCloud(drawing, drawingData)
         }
@@ -83,20 +144,32 @@ class DrawingAppRepository(private val scope: CoroutineScope,
         val baos = ByteArrayOutputStream()
         drawing.compress(Bitmap.CompressFormat.PNG, 100, baos)
         val data = baos.toByteArray()
-        
-        storageRef.putBytes(data).addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                storageRef.downloadUrl.addOnCompleteListener() { uri ->
-                    val drawingUrl = uri.toString()
-                    scope.launch(Dispatchers.IO) { dao.updateDrawingCloudStatus(drawingData.id.toString(), drawingUrl, true) }
-                    updateDrawingInfoToFirestore(userID, drawingUrl, drawingData)
-                }.addOnFailureListener {
+
+        storageRef.putBytes(data).addOnCompleteListener {
+            storageRef.downloadUrl.addOnCompleteListener() { uri ->
+                val drawingUrl = uri.result.toString()
+                scope.launch(Dispatchers.IO) {
+                    dao.updateDrawingCloudStatus(
+                        drawingData.id,
+                        drawingUrl,
+                        true,
+                        drawingData.sharedWith
+                    )
+                }
+                Log.d("upload", "DrawingURL: $drawingUrl")
+                updateDrawingInfoToFirestore(userID, drawingUrl, drawingData)
+
+            }
+                .addOnFailureListener {
                     Log.d("upload", "Failed to upload drawing")
                     scope.launch(Dispatchers.Main) {
-                        Toast.makeText(context, "Failed to upload drawing", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            context,
+                            "Failed to upload drawing",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
-            }
         }
     }
 
@@ -121,24 +194,35 @@ class DrawingAppRepository(private val scope: CoroutineScope,
         }
     }
 
-    fun shareDrawingWithUser(drawingId: String, userId: String) {
-        val drawingRef = firestore.collection("drawings").document(drawingId)
-        firestore.runTransaction() { transaction->
-            val snapshot = transaction.get(drawingRef)
-            val sharedWith = snapshot.get("sharedWith") as? List<String> ?: emptyList()
-            if (userId !in sharedWith) {
-                transaction.update(drawingRef, "sharedWith", sharedWith + userId)
-            }
-        }.addOnSuccessListener {
-            Log.d("share", "Drawing shared with user")
-            scope.launch(Dispatchers.Main) {
-                Toast.makeText(context, "Drawing shared with user", Toast.LENGTH_SHORT).show()
-            }
-        }.addOnFailureListener {
-            Log.d("share", "Failed to share drawing with user")
-            scope.launch(Dispatchers.Main) {
-                Toast.makeText(context, "Failed to share drawing with user", Toast.LENGTH_SHORT).show()
-            }
+    fun shareDrawingWithUser(drawingId: Int, userId: String) {
+        scope.launch(Dispatchers.IO) {
+            val drawing = dao.getDrawingById(drawingId)
+            val updatedSharedWith = drawing.sharedWith.split(",").toMutableList().apply {
+                if (!contains(userId)) add(userId)
+            }.joinToString(",")
+            dao.updateDrawingCloudStatus(drawingId, drawing.imageUrl, drawing.isSynced, updatedSharedWith)
+            updateFirestoreSharedWith(drawing.name, updatedSharedWith)
         }
+    }
+
+    private fun updateFirestoreSharedWith(drawingName: String, sharedWith: String) {
+        val drawingRef = firestore.collection("drawings").document(drawingName)
+        drawingRef.update("sharedWith", sharedWith)
+            .addOnSuccessListener { Log.d("Repository", "Updated sharing permissions in Firestore") }
+            .addOnFailureListener { e -> Log.e("Repository", "Error updating sharing permissions", e) }
+    }
+
+
+    fun retrieveSharedImages(userId: String, onSuccess: (List<String>) -> Unit, onError: (Exception) -> Unit) {
+        firestore.collection("drawings")
+            .whereArrayContains("sharedWith", userId)
+            .get()
+            .addOnSuccessListener { result ->
+                val imageUrls = result.documents.mapNotNull { it.getString("url") }
+                onSuccess(imageUrls)
+            }
+            .addOnFailureListener { exception ->
+                onError(exception)
+            }
     }
 }

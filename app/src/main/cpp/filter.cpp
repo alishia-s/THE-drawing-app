@@ -1,0 +1,5 @@
+//CONVERTING HEX-->RGB COLOR --> BLACK AND WHITE/GREYSCALE
+
+//math:
+/*
+ * */

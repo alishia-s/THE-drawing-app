@@ -6,23 +6,6 @@
     android:layout_height="match_parent"
     android:background="@drawable/drawable_screen_background">
 
-    <Button
-        android:id="@+id/share_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="527dp"
-        android:layout_marginBottom="156dp"
-        android:backgroundTint="#CAF0F8"
-        android:text="Share"
-        android:textAlignment="center"
-        android:textAllCaps="true"
-        android:textColor="#03045E"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:layout_editor_absoluteX="148dp" />
-
     <LinearLayout
         android:id="@+id/linearLayout2"
         android:layout_width="387dp"
@@ -42,21 +25,42 @@
             android:fontFamily="sans-serif" />
 
         <TextView
-            android:id="@+id/textView"
-            android:layout_width="233dp"
+            android:id="@+id/spacer01"
+            android:layout_width="55dp"
             android:layout_height="32dp" />
 
-        <Button
-            android:id="@+id/save_button"
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/share_button"
+            android:layout_width="50dp"
+            android:layout_height="49dp"
+            android:background="@drawable/share_button_icon"
+            />
+
+        <TextView
+            android:id="@+id/spacer_02"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="#CAF0F8"
-            android:text="Save"
-            android:textAlignment="center"
-            android:textAllCaps="true"
-            android:textColor="#03045E"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:layout_weight="1" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/delete_button"
+            android:layout_width="50dp"
+            android:layout_height="49dp"
+            android:background="@drawable/delete_button_icon"
+            />
+
+        <TextView
+            android:id="@+id/spacer_03"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/save_button"
+            android:layout_width="50dp"
+            android:layout_height="49dp"
+            android:background="@drawable/save_button_icon"
+             />
     </LinearLayout>
 
     <com.the.drawingapp.DrawingView

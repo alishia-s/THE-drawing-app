@@ -2,6 +2,7 @@ package com.the.drawingapp
 
 import android.graphics.Bitmap
 import android.graphics.Color
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,14 +11,24 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
     private val _canvasBitmap = MutableLiveData<Bitmap>()
     val canvasBitmap: LiveData<Bitmap> = _canvasBitmap
-    private val _savedCanvases = MutableStateFlow<List<Bitmap>>(emptyList())
-    val savedCanvases: Flow<List<Bitmap>> = _savedCanvases
+
+    private val _savedCanvases = MutableStateFlow<List<Drawing>>(emptyList())
+    val savedCanvases: Flow<List<Drawing>> = _savedCanvases
+
+
+    private var _currentDrawing = MutableStateFlow<Drawing?>(null)
+    var currentDrawing: StateFlow<Drawing?> = _currentDrawing.asStateFlow()
+
     val tool = Tool()
+    private val userViewModel = UserViewModel()
+
     private val greyscale = Greyscale()
     init{
         System.loadLibrary("filter")
@@ -36,12 +47,40 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
         }
     }
 
+    fun updateCurrentDrawing(drawing: Drawing) {
+        _currentDrawing.value = drawing
+    }
+
+    fun deleteCurrentDrawing() {
+        viewModelScope.launch {
+            _currentDrawing.value?.let {
+                it.id?.let { currID -> repo.deleteDrawing(currID) }
+            }
+        }
+    }
+
     //send drawing to repo via bitmap to png
     fun sendDrawing()
     {
         //send directly to repo
-        repo.saveDrawing(_canvasBitmap.value!!)
+        val drawing = Drawing(null, _canvasBitmap.value)
+        viewModelScope.launch {
+            drawing.id = repo.saveDrawing(drawing)
+        }
+
     }
+
+    fun syncWithCloud() {
+        viewModelScope.launch {
+            try {
+                val images = repo.retrieveUserImagesFromCloud(userViewModel.getUserID() ?: return@launch)
+                Log.d("DrawingViewModel", "Synced ${userViewModel.getUserID() ?: ""} with cloud, retrieved ${images.size} images")
+            } catch (e: Exception) {
+                Log.e("DrawingViewModel", e.localizedMessage ?: "Error syncing with cloud")
+            }
+        }
+    }
+
 
 //    fun restoreDrawing(pos : Int)
 //    {
@@ -54,12 +93,22 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
 //        }
 //    }
 
-    fun getAllDrawings(){
+    fun getAllUserDrawings(){
         viewModelScope.launch {
-            repo.retrieveDrawing.collect{
-                drawings -> _savedCanvases.value = drawings
+            repo.getAllUserDrawings().collect {
+                _savedCanvases.value = it
             }
         }
+    }
+
+    fun shareDrawing(email: String) {
+        _currentDrawing.value?.id?.let { userViewModel.getUserIDByEmail(email,
+            { uID -> repo.shareDrawingWithUser(it, uID!!)},
+            { e -> Log.e("DrawingViewModel", e.localizedMessage ?: "Error sharing drawing") }) }
+    }
+
+    fun NUKE(){
+        repo.NUKE()
     }
 
 

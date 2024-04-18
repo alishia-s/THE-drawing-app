@@ -25,21 +25,42 @@
             android:fontFamily="sans-serif" />
 
         <TextView
-            android:id="@+id/textView"
-            android:layout_width="233dp"
+            android:id="@+id/spacer01"
+            android:layout_width="55dp"
             android:layout_height="32dp" />
 
-        <Button
-            android:id="@+id/save_button"
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/share_button"
+            android:layout_width="50dp"
+            android:layout_height="49dp"
+            android:background="@drawable/share_button_icon"
+            />
+
+        <TextView
+            android:id="@+id/spacer_02"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="#CAF0F8"
-            android:text="Save"
-            android:textAlignment="center"
-            android:textAllCaps="true"
-            android:textColor="#03045E"
-            android:textSize="20sp"
-            android:textStyle="bold" />
+            android:layout_weight="1" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/delete_button"
+            android:layout_width="50dp"
+            android:layout_height="49dp"
+            android:background="@drawable/delete_button_icon"
+            />
+
+        <TextView
+            android:id="@+id/spacer_03"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/save_button"
+            android:layout_width="50dp"
+            android:layout_height="49dp"
+            android:background="@drawable/save_button_icon"
+             />
     </LinearLayout>
 
     <com.the.drawingapp.DrawingView
@@ -55,7 +76,7 @@
         android:id="@+id/linearLayout"
         android:layout_width="348dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp"
+        android:layout_marginBottom="96dp"
         android:background="@drawable/drawable_screen_toolbar_background"
         android:gravity="center|center_horizontal"
         android:orientation="horizontal"
@@ -63,6 +84,7 @@
         android:paddingBottom="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.492"
         app:layout_constraintStart_toStartOf="parent">
 
         <androidx.appcompat.widget.AppCompatButton

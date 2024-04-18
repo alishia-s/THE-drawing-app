@@ -29,6 +29,18 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
     val tool = Tool()
     private val userViewModel = UserViewModel()
 
+    private val greyscale = Greyscale()
+    init{
+        System.loadLibrary("filter")
+    }
+
+
+    fun greyscale(){
+        val bmp = _canvasBitmap.value!!.copy(Bitmap.Config.ARGB_8888, true)
+        greyscale.greyscale(bmp)
+        _canvasBitmap.value = bmp
+    }
+
     fun initBitmap() {
         if(_canvasBitmap.value == null){
             _canvasBitmap.value = Bitmap.createBitmap(1000, 1000, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.WHITE) }

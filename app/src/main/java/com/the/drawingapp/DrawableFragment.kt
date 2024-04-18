@@ -7,23 +7,22 @@ import android.graphics.Color
 import android.graphics.Path
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
+import android.widget.PopupWindow
 import android.widget.SeekBar
+import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.github.dhaval2404.colorpicker.ColorPickerDialog
 import com.github.dhaval2404.colorpicker.model.ColorShape
 import com.the.drawingapp.databinding.FragmentDrawableBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
 class DrawableFragment: Fragment() {
@@ -44,12 +43,28 @@ class DrawableFragment: Fragment() {
         initBackButton(binding)
         initPenSizeSlider(binding)
         initSaveButton(binding)
+        initShareButton(binding, inflater)
         initToolbarButtons()
         binding.backButton.setOnClickListener{
             findNavController().navigate(R.id.action_DrawableFragmentToMainScreen)
             bitmap.eraseColor(Color.WHITE)
         }
         return binding.root
+    }
+
+    private fun initShareButton(binding: FragmentDrawableBinding, inflater : LayoutInflater) {
+        binding.shareButton.setOnClickListener {
+            val popupView = inflater.inflate(R.layout.share_popup, null)
+            val sendButton = popupView.findViewById<AppCompatButton>(R.id.send_button)
+            val popupWindow = PopupWindow(popupView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, true)
+            popupWindow.showAtLocation(binding.root, Gravity.CENTER, 0, 0)
+            sendButton.setOnClickListener{
+                val emailEntry = popupView.findViewById<EditText>(R.id.popup_entry)
+                val email = emailEntry.text.toString()
+                //TODO: Insert email sending here Nam
+                popupWindow.dismiss()
+            }
+        }
     }
 
     private fun initSaveButton(binding: FragmentDrawableBinding) {

@@ -41,6 +41,10 @@ class DrawingAppRepository(
         }
     }
 
+    fun deleteDrawing(drawingId: Int) {
+        dao.deleteDrawingById(drawingId)
+    }
+
     private fun retrieveBitmapFromFile(fileName: String, drawingId: Int): Drawing {
         val dir = context.filesDir.path
         val file = File(dir, fileName)

@@ -23,6 +23,9 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
     val savedCanvases: Flow<List<Drawing>> = _savedCanvases
 
 
+    private var _currentDrawing = MutableStateFlow<Drawing?>(null)
+    var currentDrawing: StateFlow<Drawing?> = _currentDrawing.asStateFlow()
+
     val tool = Tool()
     private val userViewModel = UserViewModel()
 
@@ -30,6 +33,10 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
         if(_canvasBitmap.value == null){
             _canvasBitmap.value = Bitmap.createBitmap(1000, 1000, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.WHITE) }
         }
+    }
+
+    fun updateCurrentDrawing(drawing: Drawing) {
+        _currentDrawing.value = drawing
     }
 
     //send drawing to repo via bitmap to png

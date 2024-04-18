@@ -58,8 +58,9 @@ class MainScreenFragment : Fragment() {
         drawingViewModel.getAllUserDrawings()
         binding.composeView.setContent {
             Log.d("ComposeView Setting Content", "${drawingViewModel.savedCanvases}")
-            SavedCanvasList(drawingViewModel.savedCanvases) { selectedBitmap ->
-                drawingViewModel.updateBitmap(selectedBitmap)
+            SavedCanvasList(drawingViewModel.savedCanvases) { selectedDrawing ->
+                drawingViewModel.updateBitmap(selectedDrawing.bitmap!!)
+                drawingViewModel.updateCurrentDrawing(selectedDrawing)
                 findNavController().navigate(R.id.action_MainScreenToDrawableFragment)
             }
         }
@@ -68,7 +69,7 @@ class MainScreenFragment : Fragment() {
 }
 
 @Composable
-fun SavedCanvasList(savedCanvases: Flow<List<Drawing>>, onClick: (Bitmap) -> Unit) {
+fun SavedCanvasList(savedCanvases: Flow<List<Drawing>>, onClick: (Drawing) -> Unit) {
     val bitmaps by savedCanvases.collectAsState(initial = emptyList())
     Log.d("SavedCanvasList", "BitmapList size: ${bitmaps.size}")
     val scrollState = rememberScrollState()
@@ -77,7 +78,7 @@ fun SavedCanvasList(savedCanvases: Flow<List<Drawing>>, onClick: (Bitmap) -> Uni
             if(drawing.bitmap == null) {
                 Log.d("SavedCanvasList", "Bitmap is null")
             } else {
-                SavedCanvas(drawing.bitmap!!, onClick)
+                SavedCanvas(drawing, onClick)
             }
             Spacer(modifier = Modifier.width(8.dp))
         }
@@ -85,9 +86,9 @@ fun SavedCanvasList(savedCanvases: Flow<List<Drawing>>, onClick: (Bitmap) -> Uni
 }
 
 @Composable
-fun SavedCanvas(canvas: Bitmap, onClick: (Bitmap) -> Unit) {
+fun SavedCanvas(canvas: Drawing, onClick: (Drawing) -> Unit) {
     Image(
-        bitmap = canvas.asImageBitmap(),
+        bitmap = canvas.bitmap!!.asImageBitmap(),
         contentDescription = canvas.toString(),
         modifier = Modifier.clickable {
             onClick(canvas)

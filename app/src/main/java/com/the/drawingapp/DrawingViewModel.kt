@@ -16,12 +16,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
+    init{
+        System.loadLibrary("filter")
+    }
     private val _canvasBitmap = MutableLiveData<Bitmap>()
     val canvasBitmap: LiveData<Bitmap> = _canvasBitmap
 
     private val _savedCanvases = MutableStateFlow<List<Drawing>>(emptyList())
     val savedCanvases: Flow<List<Drawing>> = _savedCanvases
-
 
     private var _currentDrawing = MutableStateFlow<Drawing?>(null)
     var currentDrawing: StateFlow<Drawing?> = _currentDrawing.asStateFlow()
@@ -30,10 +32,6 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
     private val userViewModel = UserViewModel()
 
     private val greyscale = Greyscale()
-    init{
-        System.loadLibrary("filter")
-    }
-
 
     fun greyscale(){
         val bmp = _canvasBitmap.value!!.copy(Bitmap.Config.ARGB_8888, true)

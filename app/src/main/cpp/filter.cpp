@@ -7,41 +7,51 @@
  */
 
 //forward declarations
-static int* getRGB(uint32_t );
+static uint8_t* getRGB(uint32_t );
 static void greyscale(AndroidBitmapInfo*, void*);
 static void invert(AndroidBitmapInfo*, void*);
 
 static void greyscale(AndroidBitmapInfo* bitmap, void* pixels)
 {
-    int x, y, new_pixel_color;
-    int* RGB;
+    int x, y;
+//    int red = 0;
+//    int green = 0;
+//    int blue = 0;
+    uint8_t* RGB;
     uint32_t * line;
+
+//    int dim = (bitmap->height) * (bitmap->width);
 
     for (y = 0; y < bitmap->height; y++)
     {
-        line = (uint32_t *) pixels;
+        line = (uint32_t *)pixels;
 
-        for (x = 0; x < bitmap->width; x++){
-            //RGB = getRGB(line[x]);
+        for (x = 0; x < bitmap->width; x++) {
+            if (line[x] != 0xFF000000) {
+            RGB = getRGB(line[x]);
 
             //math found at https://goodcalculators.com/rgb-to-grayscale-conversion-calculator/
-            new_pixel_color = (255-0.3 * RGB[0]) + (255-0.6 * RGB[1]) + (255-0.1 * RGB[2]);
+            line[x] = ((255 - 0.299 * RGB[0]) + (255 - 0.587 * RGB[1]) + (255 - 0.114 * RGB[2])) / 3;
 
-            line[x] = new_pixel_color;
+//            line[x]=(line[x] & 0xff) << 24              |
+//                    ((int)(0.07 * RGB[2])) & 0xff << 16 |
+//                    ((int)(0.72 * RGB[1])) & 0xff << 8  |
+//                    ((int)(0.21 * RGB[0])) & 0xff;
+            }
         }
-        pixels = (char*)pixels + bitmap -> stride;
+        pixels = (char*)pixels + bitmap->stride;
     }
 }
 
 //return pointer to array [r,g,b]
-static int* getRGB(uint32_t pixel)
+static uint8_t * getRGB(uint32_t pixel)
 {
     //get rgb
-    int red = (int)  ((pixel & 0x00FF0000) >> 16);
-    int green = (int)((pixel & 0x0000FF00) >> 8);
-    int blue = (int) ((pixel & 0x000000FF));
+    uint8_t blue = (int)  ((pixel & 0x00FF0000) >> 16);
+    uint8_t green = (int)((pixel & 0x0000FF00) >> 8);
+    uint8_t red = (int) ((pixel & 0x000000FF));
 
-    int RGB_arr[3] = {red, green, blue};
+    uint8_t RGB_arr[3] = {red, green, blue};
 
     return RGB_arr;
 }

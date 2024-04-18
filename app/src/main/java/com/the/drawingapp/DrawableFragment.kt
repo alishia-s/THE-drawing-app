@@ -72,7 +72,7 @@ class DrawableFragment: Fragment() {
 
     private fun initGreyscaleButton(binding: FragmentDrawableBinding) {
         binding.greyscale?.setOnClickListener {
-            viewModel.greyscale()
+            drawingViewModel.greyscale()
         }
     }
     private fun initBackButton(binding: FragmentDrawableBinding) {

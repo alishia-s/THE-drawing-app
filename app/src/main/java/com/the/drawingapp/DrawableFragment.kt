@@ -44,6 +44,7 @@ class DrawableFragment: Fragment() {
         initPenSizeSlider(binding)
         initSaveButton(binding)
         initShareButton(binding, inflater)
+        initGreyscaleButton(binding)
         initToolbarButtons()
         initDeleteButton()
         return binding.root
@@ -77,6 +78,11 @@ class DrawableFragment: Fragment() {
         }
     }
 
+    private fun initGreyscaleButton(binding: FragmentDrawableBinding) {
+        binding.greyscale?.setOnClickListener {
+            viewModel.greyscale()
+        }
+    }
     private fun initBackButton(binding: FragmentDrawableBinding) {
         binding.backButton.setOnClickListener {
             binding.penSizeBar.progress = 12

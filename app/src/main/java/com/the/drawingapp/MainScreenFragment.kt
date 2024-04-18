@@ -28,7 +28,8 @@ import kotlinx.coroutines.flow.Flow
 
 class MainScreenFragment : Fragment() {
     private lateinit var binding: FragmentMainScreenBinding
-    private val viewModel : DrawingViewModel by activityViewModels{DrawingViewModel.DrawingViewModelFactory((getActivity()?.application as DrawingApplication).drawingAppRepository)}
+    private val drawingViewModel : DrawingViewModel by activityViewModels{DrawingViewModel.DrawingViewModelFactory((getActivity()?.application as DrawingApplication).drawingAppRepository)}
+    private val userViewModel: UserViewModel by activityViewModels()
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -39,11 +40,27 @@ class MainScreenFragment : Fragment() {
             findNavController().navigate(R.id.action_MainScreenToDrawableFragment)
         }
 
-        viewModel.getAllDrawings()
+
+        binding.cloudBackup.setOnClickListener() {
+            drawingViewModel.syncWithCloud()
+        }
+
+        // TODO: make actual logout and nuke button
+        binding.moveLeft.setOnClickListener() {
+            userViewModel.logout()
+            findNavController().navigate(R.id.LoginFragment)
+        }
+
+        binding.moveRight.setOnClickListener() {
+            drawingViewModel.NUKE()
+        }
+
+        drawingViewModel.getAllUserDrawings()
         binding.composeView.setContent {
-            Log.d("ComposeView Setting Content", "${viewModel.savedCanvases}")
-            SavedCanvasList(viewModel.savedCanvases) { selectedBitmap ->
-                viewModel.updateBitmap(selectedBitmap)
+            Log.d("ComposeView Setting Content", "${drawingViewModel.savedCanvases}")
+            SavedCanvasList(drawingViewModel.savedCanvases) { selectedDrawing ->
+                drawingViewModel.updateBitmap(selectedDrawing.bitmap!!)
+                drawingViewModel.updateCurrentDrawing(selectedDrawing)
                 findNavController().navigate(R.id.action_MainScreenToDrawableFragment)
             }
         }
@@ -52,16 +69,16 @@ class MainScreenFragment : Fragment() {
 }
 
 @Composable
-fun SavedCanvasList(savedCanvases: Flow<List<Bitmap>>, onClick: (Bitmap) -> Unit) {
+fun SavedCanvasList(savedCanvases: Flow<List<Drawing>>, onClick: (Drawing) -> Unit) {
     val bitmaps by savedCanvases.collectAsState(initial = emptyList())
     Log.d("SavedCanvasList", "BitmapList size: ${bitmaps.size}")
     val scrollState = rememberScrollState()
     Row(modifier = Modifier.horizontalScroll(scrollState)) {
-        bitmaps.reversed().forEach { bitmap ->
-            if(bitmap == null) {
+        bitmaps.reversed().forEach { drawing ->
+            if(drawing.bitmap == null) {
                 Log.d("SavedCanvasList", "Bitmap is null")
             } else {
-                SavedCanvas(bitmap, onClick)
+                SavedCanvas(drawing, onClick)
             }
             Spacer(modifier = Modifier.width(8.dp))
         }
@@ -69,9 +86,9 @@ fun SavedCanvasList(savedCanvases: Flow<List<Bitmap>>, onClick: (Bitmap) -> Unit
 }
 
 @Composable
-fun SavedCanvas(canvas: Bitmap, onClick: (Bitmap) -> Unit) {
+fun SavedCanvas(canvas: Drawing, onClick: (Drawing) -> Unit) {
     Image(
-        bitmap = canvas.asImageBitmap(),
+        bitmap = canvas.bitmap!!.asImageBitmap(),
         contentDescription = canvas.toString(),
         modifier = Modifier.clickable {
             onClick(canvas)

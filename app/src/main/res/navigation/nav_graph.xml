@@ -2,7 +2,7 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/mainScreenFragment"
+    app:startDestination="@id/LoginFragment"
     >
     <fragment
         android:id="@+id/mainScreenFragment"
@@ -18,6 +18,14 @@
         android:label="DrawableFragment" >
         <action
             android:id="@+id/action_DrawableFragmentToMainScreen"
+            app:destination="@id/mainScreenFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/LoginFragment"
+        android:name="com.the.drawingapp.LoginFragment"
+        android:label="LoginFragment" >
+        <action
+            android:id="@+id/action_LoginFragmentToMainScreen"
             app:destination="@id/mainScreenFragment" />
     </fragment>
 </navigation>

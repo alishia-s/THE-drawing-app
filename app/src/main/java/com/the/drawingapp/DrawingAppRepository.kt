@@ -77,7 +77,14 @@ class DrawingAppRepository(
                     .get()
                     .await()
 
-                val urls = docs.documents.mapNotNull { it.getString("url") }
+                val sharedDocs = firestore.collection("drawings")
+                    .whereArrayContains("sharedWith", userId)
+                    .get()
+                    .await()
+
+                val allDocs = docs.documents + sharedDocs.documents
+
+                val urls = allDocs.mapNotNull { it.getString("url") }.distinct()
                 if (urls.isNotEmpty()) downloadImages(urls)
                 else emptyList()
             } catch (e: Exception) {
@@ -87,7 +94,7 @@ class DrawingAppRepository(
 
 
     private suspend fun downloadImages(urls: List<String>): List<Bitmap> = coroutineScope {
-        val imageTasks = urls.map { url ->
+        val imageTasks = urls.distinct().map { url ->
             async(Dispatchers.IO) {
                 try {
                     val storageRef = storage.getReferenceFromUrl(url)
@@ -142,9 +149,10 @@ class DrawingAppRepository(
             }
         }
         val userId = userViewModel.getUserID()
-        val drawingData = DrawingAppData(userId ?: "", fileName, Date())
+        val drawingData = DrawingAppData(userId!!, fileName, Date())
         dao.saveDrawing(drawingData)
         uploadToCloud(drawing, drawingData)
+        Log.d("SaveDrawing", "${drawingData.name} saved to local DB")
         return drawingData.id
     }
 
@@ -188,6 +196,7 @@ class DrawingAppRepository(
         drawingUrl: String,
         drawingData: DrawingAppData
     ) {
+        Log.d("DrawingInfo", "Owner: $userId, URL: $drawingUrl, Name: ${drawingData.name}")
         val drawingInfo = hashMapOf(
             "owner" to userId,
             "url" to drawingUrl,
@@ -214,53 +223,41 @@ class DrawingAppRepository(
 
     fun shareDrawingWithUser(drawingId: Int, userId: String) {
         scope.launch(Dispatchers.IO) {
-            val drawing = dao.getDrawingById(drawingId)
-            val updatedSharedWith = drawing.sharedWith.split(",").toMutableList().apply {
-                if (!contains(userId)) add(userId)
-            }.joinToString(",")
-            dao.updateDrawingCloudStatus(
-                drawingId,
-                drawing.imageUrl,
-                drawing.isSynced,
-                updatedSharedWith
-            )
-            updateFirestoreSharedWith(drawing.name, updatedSharedWith)
+            try {
+                // Retrieve the drawing by its ID
+                val drawing = dao.getDrawingById(drawingId)
+                Log.d("ShareDrawing", "$drawingId, $userId")
+
+                // Create a set from the existing sharedWith data to avoid duplicates and handle empty cases more gracefully
+                val sharedUsers = drawing.sharedWith.split(",").filter { it.isNotEmpty() }.toMutableSet()
+
+                // Add the new userId if it's not already included
+                sharedUsers.add(userId)
+
+                // Convert the set back to a comma-separated string
+                val updatedSharedWith = sharedUsers.joinToString(",")
+
+                // Update local database
+                dao.updateDrawingCloudStatus(drawingId, drawing.imageUrl, drawing.isSynced, updatedSharedWith)
+                Log.d("Repository", "${drawing.name} shared with: $updatedSharedWith")
+
+                // Update Firestore
+                updateFirestoreSharedWith(drawing.name, updatedSharedWith)
+            } catch (e: Exception) {
+                Log.e("Repository", "Error sharing drawing: $e")
+            }
         }
     }
 
-    private fun updateFirestoreSharedWith(drawingName: String, sharedWith: String) {
-        val drawingRef = firestore.collection("drawings").document(drawingName)
+    private fun updateFirestoreSharedWith(drawingIdentifier: String, sharedWith: String) {
+        val drawingRef = firestore.collection("drawings").document(drawingIdentifier)
         drawingRef.update("sharedWith", sharedWith)
             .addOnSuccessListener {
-                Log.d(
-                    "Repository",
-                    "Updated sharing permissions in Firestore"
-                )
+                Log.d("Repository", "Successfully updated sharing permissions in Firestore for $drawingIdentifier")
             }
             .addOnFailureListener { e ->
-                Log.e(
-                    "Repository",
-                    "Error updating sharing permissions",
-                    e
-                )
+                Log.e("Repository", "Error updating sharing permissions for $drawingIdentifier", e)
             }
     }
 
-
-    fun retrieveSharedImages(
-        userId: String,
-        onSuccess: (List<String>) -> Unit,
-        onError: (Exception) -> Unit
-    ) {
-        firestore.collection("drawings")
-            .whereArrayContains("sharedWith", userId)
-            .get()
-            .addOnSuccessListener { result ->
-                val imageUrls = result.documents.mapNotNull { it.getString("url") }
-                onSuccess(imageUrls)
-            }
-            .addOnFailureListener { exception ->
-                onError(exception)
-            }
-    }
 }

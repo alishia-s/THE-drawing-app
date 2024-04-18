@@ -26,7 +26,7 @@ import com.the.drawingapp.databinding.FragmentDrawableBinding
 
 
 class DrawableFragment: Fragment() {
-    private val viewModel : DrawingViewModel by activityViewModels{DrawingViewModel.DrawingViewModelFactory((getActivity()?.application as DrawingApplication).drawingAppRepository)}
+    private val drawingViewModel : DrawingViewModel by activityViewModels{DrawingViewModel.DrawingViewModelFactory((getActivity()?.application as DrawingApplication).drawingAppRepository)}
     private lateinit var binding: FragmentDrawableBinding
     private lateinit var drawingCanvas: Canvas
     private lateinit var bitmap: Bitmap
@@ -39,16 +39,12 @@ class DrawableFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentDrawableBinding.inflate(inflater, container, false)
-        tool = viewModel.tool
+        tool = drawingViewModel.tool
         initBackButton(binding)
         initPenSizeSlider(binding)
         initSaveButton(binding)
         initShareButton(binding, inflater)
         initToolbarButtons()
-        binding.backButton.setOnClickListener{
-            findNavController().navigate(R.id.action_DrawableFragmentToMainScreen)
-            bitmap.eraseColor(Color.WHITE)
-        }
         return binding.root
     }
 
@@ -61,7 +57,7 @@ class DrawableFragment: Fragment() {
             sendButton.setOnClickListener{
                 val emailEntry = popupView.findViewById<EditText>(R.id.popup_entry)
                 val email = emailEntry.text.toString()
-                //TODO: Insert email sending here Nam
+                drawingViewModel.shareDrawing(email)
                 popupWindow.dismiss()
             }
         }
@@ -69,7 +65,7 @@ class DrawableFragment: Fragment() {
 
     private fun initSaveButton(binding: FragmentDrawableBinding) {
         binding.saveButton.setOnClickListener {
-            viewModel.sendDrawing()
+            drawingViewModel.sendDrawing()
         }
     }
 
@@ -77,6 +73,7 @@ class DrawableFragment: Fragment() {
         binding.backButton.setOnClickListener {
             binding.penSizeBar.progress = 12
             bitmap.eraseColor(Color.WHITE)
+            findNavController().navigate(R.id.action_DrawableFragmentToMainScreen)
         }
     }
 
@@ -95,7 +92,7 @@ class DrawableFragment: Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.initBitmap()
+        drawingViewModel.initBitmap()
         val drawingView = view.findViewById<DrawingView>(R.id.canvas)
         initDrawingCanvas(drawingView)
         initObservers(drawingView)
@@ -120,7 +117,7 @@ class DrawableFragment: Fragment() {
                     tempPath.reset()
                 }
             }
-            viewModel.updateBitmap(bitmap)
+            drawingViewModel.updateBitmap(bitmap)
             drawingView.invalidate()
             true
         }
@@ -158,7 +155,7 @@ class DrawableFragment: Fragment() {
     }
     private fun initObservers(drawingView: DrawingView) {
         Log.e("DrawableFragment", "Observers Initialized")
-        viewModel.canvasBitmap.observe(viewLifecycleOwner, Observer { bitmap ->
+        drawingViewModel.canvasBitmap.observe(viewLifecycleOwner, Observer { bitmap ->
             this.bitmap = bitmap
             drawingView.setBitmap(bitmap)
             drawingCanvas = Canvas(bitmap)

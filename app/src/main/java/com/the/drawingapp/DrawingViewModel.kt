@@ -61,7 +61,7 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
     fun syncWithCloud() {
         viewModelScope.launch {
             try {
-                val images = repo.retrieveUserImagesFromCloud(userViewModel.getUserID() ?: "")
+                val images = repo.retrieveUserImagesFromCloud(userViewModel.getUserID() ?: return@launch)
                 Log.d("DrawingViewModel", "Synced ${userViewModel.getUserID() ?: ""} with cloud, retrieved ${images.size} images")
             } catch (e: Exception) {
                 Log.e("DrawingViewModel", e.localizedMessage ?: "Error syncing with cloud")
@@ -90,8 +90,9 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
     }
 
     fun shareDrawing(email: String) {
-        _currentDrawing.value?.id?.let { userViewModel.getUserIdByEmail(email)
-            ?.let { uID -> repo.shareDrawingWithUser(it, uID) } }
+        _currentDrawing.value?.id?.let { userViewModel.getUserIDByEmail(email,
+            { uID -> repo.shareDrawingWithUser(it, uID!!)},
+            { e -> Log.e("DrawingViewModel", e.localizedMessage ?: "Error sharing drawing") }) }
     }
 
     fun NUKE(){

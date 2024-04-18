@@ -48,14 +48,19 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
     }
 
     //send drawing to repo via bitmap to png
-    fun sendDrawing()
-    {
+    fun sendDrawing() {
         //send directly to repo
-        val drawing = Drawing(null, _canvasBitmap.value)
-        viewModelScope.launch {
-            drawing.id = repo.saveDrawing(drawing)
+        if (_currentDrawing.value != null) {
+            _currentDrawing.value?.bitmap = _canvasBitmap.value
+            viewModelScope.launch {
+                repo.saveDrawing(_currentDrawing.value!!)
+            }
+        } else {
+            val drawing = Drawing(null, _canvasBitmap.value)
+            viewModelScope.launch {
+                drawing.id = repo.saveDrawing(drawing)
+            }
         }
-
     }
 
     fun syncWithCloud() {
@@ -103,6 +108,9 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
     fun updateBitmap(bitmap: Bitmap)
     {
         _canvasBitmap.value = bitmap
+        if (_currentDrawing.value != null) {
+            _currentDrawing.value?.bitmap = bitmap
+        }
     }
 
     class DrawingViewModelFactory(private val repo : DrawingAppRepository) : ViewModelProvider.Factory{

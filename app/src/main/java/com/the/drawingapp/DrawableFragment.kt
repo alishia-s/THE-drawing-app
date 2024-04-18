@@ -39,6 +39,7 @@ class DrawableFragment: Fragment() {
         initBackButton(binding)
         initPenSizeSlider(binding)
         initSaveButton(binding)
+        initGreyscaleButton(binding)
         initToolbarButtons()
         binding.backButton.setOnClickListener{
             findNavController().navigate(R.id.action_DrawableFragmentToMainScreen)
@@ -53,6 +54,11 @@ class DrawableFragment: Fragment() {
         }
     }
 
+    private fun initGreyscaleButton(binding: FragmentDrawableBinding) {
+        binding.greyscale?.setOnClickListener {
+            viewModel.greyscale()
+        }
+    }
     private fun initBackButton(binding: FragmentDrawableBinding) {
         binding.backButton.setOnClickListener {
             binding.penSizeBar.progress = 12

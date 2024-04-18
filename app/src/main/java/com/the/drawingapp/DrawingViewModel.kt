@@ -18,6 +18,17 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
     private val _savedCanvases = MutableStateFlow<List<Bitmap>>(emptyList())
     val savedCanvases: Flow<List<Bitmap>> = _savedCanvases
     val tool = Tool()
+    private val greyscale = Greyscale()
+    init{
+        System.loadLibrary("filter")
+    }
+
+
+    fun greyscale(){
+        val bmp = _canvasBitmap.value!!.copy(Bitmap.Config.ARGB_8888, true)
+        greyscale.greyscale(bmp)
+        _canvasBitmap.value = bmp
+    }
 
     fun initBitmap() {
         if(_canvasBitmap.value == null){

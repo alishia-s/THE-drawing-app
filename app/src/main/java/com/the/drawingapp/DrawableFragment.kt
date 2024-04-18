@@ -15,6 +15,8 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.PopupWindow
 import android.widget.SeekBar
+import android.widget.Toast
+import android.widget.Toast.LENGTH_LONG
 import androidx.appcompat.widget.AppCompatButton
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -45,6 +47,8 @@ class DrawableFragment: Fragment() {
         initSaveButton(binding)
         initShareButton(binding, inflater)
         initGreyscaleButton(binding)
+        initUndoButton(binding)
+        initRedoButton(binding)
         initToolbarButtons()
         return binding.root
     }
@@ -75,6 +79,17 @@ class DrawableFragment: Fragment() {
             drawingViewModel.greyscale()
         }
     }
+    private fun initUndoButton(binding: FragmentDrawableBinding) {
+        binding.undo?.setOnClickListener {
+            drawingViewModel.undo()
+        }
+    }
+    private fun initRedoButton(binding: FragmentDrawableBinding) {
+        binding.redo?.setOnClickListener {
+            drawingViewModel.redo()
+        }
+    }
+
     private fun initBackButton(binding: FragmentDrawableBinding) {
         binding.backButton.setOnClickListener {
             binding.penSizeBar.progress = 12
@@ -120,6 +135,7 @@ class DrawableFragment: Fragment() {
 
                 }
                 MotionEvent.ACTION_UP -> {
+                    drawingViewModel.addToUndoStack(bitmap)
                     tempPath.reset()
                 }
             }
@@ -166,6 +182,28 @@ class DrawableFragment: Fragment() {
             drawingView.setBitmap(bitmap)
             drawingCanvas = Canvas(bitmap)
             drawingView.invalidate()
+        })
+        drawingViewModel.undoStatus.observe(viewLifecycleOwner, Observer { undoStatus ->
+            undoStatus.let{
+                if(it == false)
+                {
+                    drawingViewModel.undoStatus.value = null
+                    val toast = Toast.makeText(this.context, "Cannot undo", LENGTH_LONG)
+                    toast.setGravity(Gravity.TOP, 0, 0)
+                    toast.show()
+                }
+            }
+        })
+        drawingViewModel.redoStatus.observe(viewLifecycleOwner, Observer { redoStatus ->
+            redoStatus.let{
+                if(it == false)
+                {
+                    drawingViewModel.undoStatus.value = null
+                    val toast = Toast.makeText(this.context, "Cannot redo", LENGTH_LONG)
+                    toast.setGravity(Gravity.TOP, 0, 0)
+                    toast.show()
+                }
+            }
         })
     }
 }

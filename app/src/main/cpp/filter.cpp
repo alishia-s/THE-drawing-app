@@ -28,30 +28,32 @@ static void greyscale(AndroidBitmapInfo* bitmap, void* pixels)
         line = (argb *)pixels;
 
         for (x = 0; x < bitmap->width; x++) {
-            //math found at https://goodcalculators.com/rgb-to-grayscale-conversion-calculator/
-            int color = ((line[x].red) + (line[x].green) + (line[x].blue)) / 3;
+                //math found at https://goodcalculators.com/rgb-to-grayscale-conversion-calculator/
 
-            line[x].red = color;
-            line[x].green = color;
-            line[x].blue = color;
-            line[x].alpha = 0xff;
+//                int color = ((0.299 * line[x].red) + (0.587 * line[x].green) + (0.114 * line[x].blue)) / 3;
+                int color = ((line[x].red) + (line[x].green) + (line[x].blue)) / 3;
+
+                line[x].red = color;
+                line[x].green = color;
+                line[x].blue = color;
+                line[x].alpha = 0xff;
         }
         pixels = (char*)pixels + bitmap->stride;
     }
 }
 
 //return pointer to array [r,g,b]
-//static uint32_t * getRGB(uint32_t pixel)
-//{
-//    //get rgb
-//    uint32_t blue = (int)  ((pixel & 0x00FF0000) >> 16);
-//    uint32_t green = (int)((pixel & 0x0000FF00) >> 8);
-//    uint32_t red = (int) ((pixel & 0x000000FF));
-//
-//    uint32_t RGB_arr[3] = {red, green, blue};
-//
-//    return RGB_arr;
-//}
+static uint32_t * getRGB(uint32_t pixel)
+{
+    //get rgb
+    uint32_t blue = (int)  ((pixel & 0x00FF0000) >> 16);
+    uint32_t green = (int)((pixel & 0x0000FF00) >> 8);
+    uint32_t red = (int) ((pixel & 0x000000FF));
+
+    uint32_t RGB_arr[3] = {red, green, blue};
+
+    return RGB_arr;
+}
 
 static void invert(AndroidBitmapInfo* info, void* pixels);
 

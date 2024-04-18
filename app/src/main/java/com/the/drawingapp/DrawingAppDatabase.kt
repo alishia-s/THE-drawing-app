@@ -64,7 +64,7 @@ interface DrawingAppDao
     suspend fun getDrawingById(id: Int): DrawingAppData
 
     @Query("DELETE from drawings where id = :id")
-    fun deleteDrawingById(id: Int)
+    suspend fun deleteDrawingById(id: Int)
 
     @Query("Delete from drawings")
     suspend fun NUKEITALL()

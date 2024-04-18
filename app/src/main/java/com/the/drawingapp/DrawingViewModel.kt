@@ -39,6 +39,14 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
         _currentDrawing.value = drawing
     }
 
+    fun deleteCurrentDrawing() {
+        viewModelScope.launch {
+            _currentDrawing.value?.let {
+                it.id?.let { currID -> repo.deleteDrawing(currID) }
+            }
+        }
+    }
+
     //send drawing to repo via bitmap to png
     fun sendDrawing()
     {
@@ -81,10 +89,9 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
         }
     }
 
-    fun shareDrawing(drawingId: Int, userIds: List<String>){
-        userIds.forEach { userId ->
-            repo.shareDrawingWithUser(drawingId, userId)
-        }
+    fun shareDrawing(email: String) {
+        _currentDrawing.value?.id?.let { userViewModel.getUserIdByEmail(email)
+            ?.let { uID -> repo.shareDrawingWithUser(it, uID) } }
     }
 
     fun NUKE(){

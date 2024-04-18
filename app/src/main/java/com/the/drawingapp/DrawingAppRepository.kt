@@ -41,7 +41,7 @@ class DrawingAppRepository(
         }
     }
 
-    fun deleteDrawing(drawingId: Int) {
+    suspend fun deleteDrawing(drawingId: Int) {
         dao.deleteDrawingById(drawingId)
     }
 

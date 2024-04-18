@@ -39,7 +39,10 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
 
     private val greyscale = Greyscale()
 
-    private fun push(bmp : Bitmap, stack: MutableList<Bitmap>) = stack.add(bmp)
+    private fun push(bmp : Bitmap, stack: MutableList<Bitmap>) {
+        val bmp = bmp.copy(Bitmap.Config.ARGB_8888, true)
+        stack.add(bmp)
+    }
     private fun pop(stack: MutableList<Bitmap>) : Bitmap?
     {
         val bmp = stack.lastOrNull()
@@ -52,6 +55,7 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
 
     fun greyscale(){
         val bmp = _canvasBitmap.value!!.copy(Bitmap.Config.ARGB_8888, true)
+        push(_canvasBitmap.value!!, undoStack)
         greyscale.greyscale(bmp)
         _canvasBitmap.value = bmp
     }
@@ -62,8 +66,9 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
         {
             push(_canvasBitmap.value!!, redoStack)
             _canvasBitmap.value = bmp!!
-            Log.e("UNDO", "UNDO with redo stack ${redoStack.size}")
-
+            if (_currentDrawing.value != null) {
+                _currentDrawing.value?.bitmap = _canvasBitmap.value
+            }
         }
         else{
             undoStatus.value = false
@@ -78,6 +83,10 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
        {
            push(_canvasBitmap.value!!, undoStack)
            _canvasBitmap.value = bmp!!
+           if (_currentDrawing.value != null)
+           {
+               _currentDrawing.value?.bitmap = _canvasBitmap.value
+           }
            Log.e("REDO", "REDO")
        }
        else{
@@ -91,7 +100,6 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
             _canvasBitmap.value = Bitmap.createBitmap(1000, 1000, Bitmap.Config.ARGB_8888).apply {
                 eraseColor(Color.WHITE) }
         }
-        push(_canvasBitmap.value!!, undoStack)
     }
 
     fun updateCurrentDrawing(drawing: Drawing) {

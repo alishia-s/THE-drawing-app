@@ -133,6 +133,7 @@ class DrawableFragment: Fragment() {
         drawingView.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
+                    drawingViewModel.addToUndoStack(bitmap)
                     tempPath.moveTo(event.x, event.y)
                     drawingCanvas.drawPoint(event.x, event.y, tool.paint)
 
@@ -143,7 +144,6 @@ class DrawableFragment: Fragment() {
 
                 }
                 MotionEvent.ACTION_UP -> {
-                    drawingViewModel.addToUndoStack(bitmap)
                     tempPath.reset()
                 }
             }

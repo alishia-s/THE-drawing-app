@@ -7,54 +7,51 @@
  */
 
 //forward declarations
-static uint8_t* getRGB(uint32_t );
+struct argb{
+    uint8_t red;
+    uint8_t green;
+    uint8_t blue;
+    uint8_t alpha;
+};
+
+static uint32_t * getRGB(uint32_t );
 static void greyscale(AndroidBitmapInfo*, void*);
 static void invert(AndroidBitmapInfo*, void*);
 
 static void greyscale(AndroidBitmapInfo* bitmap, void* pixels)
 {
     int x, y;
-//    int red = 0;
-//    int green = 0;
-//    int blue = 0;
-    uint8_t* RGB;
-    uint32_t * line;
-
-//    int dim = (bitmap->height) * (bitmap->width);
+    argb * line;
 
     for (y = 0; y < bitmap->height; y++)
     {
-        line = (uint32_t *)pixels;
+        line = (argb *)pixels;
 
         for (x = 0; x < bitmap->width; x++) {
-            if (line[x] != 0xFF000000) {
-            RGB = getRGB(line[x]);
-
             //math found at https://goodcalculators.com/rgb-to-grayscale-conversion-calculator/
-            line[x] = ((255 - 0.299 * RGB[0]) + (255 - 0.587 * RGB[1]) + (255 - 0.114 * RGB[2])) / 3;
+            int color = ((line[x].red) + (line[x].green) + (line[x].blue)) / 3;
 
-//            line[x]=(line[x] & 0xff) << 24              |
-//                    ((int)(0.07 * RGB[2])) & 0xff << 16 |
-//                    ((int)(0.72 * RGB[1])) & 0xff << 8  |
-//                    ((int)(0.21 * RGB[0])) & 0xff;
-            }
+            line[x].red = color;
+            line[x].green = color;
+            line[x].blue = color;
+            line[x].alpha = 0xff;
         }
         pixels = (char*)pixels + bitmap->stride;
     }
 }
 
 //return pointer to array [r,g,b]
-static uint8_t * getRGB(uint32_t pixel)
-{
-    //get rgb
-    uint8_t blue = (int)  ((pixel & 0x00FF0000) >> 16);
-    uint8_t green = (int)((pixel & 0x0000FF00) >> 8);
-    uint8_t red = (int) ((pixel & 0x000000FF));
-
-    uint8_t RGB_arr[3] = {red, green, blue};
-
-    return RGB_arr;
-}
+//static uint32_t * getRGB(uint32_t pixel)
+//{
+//    //get rgb
+//    uint32_t blue = (int)  ((pixel & 0x00FF0000) >> 16);
+//    uint32_t green = (int)((pixel & 0x0000FF00) >> 8);
+//    uint32_t red = (int) ((pixel & 0x000000FF));
+//
+//    uint32_t RGB_arr[3] = {red, green, blue};
+//
+//    return RGB_arr;
+//}
 
 static void invert(AndroidBitmapInfo* info, void* pixels);
 

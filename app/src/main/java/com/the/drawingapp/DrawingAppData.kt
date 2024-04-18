@@ -1,5 +1,6 @@
 package com.the.drawingapp
 
+import android.graphics.Bitmap
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
@@ -44,3 +45,5 @@ data class DrawingAppData(
         name = newName
     }
 }
+
+data class Drawing(var id: Int? = null, var bitmap: Bitmap? = null)

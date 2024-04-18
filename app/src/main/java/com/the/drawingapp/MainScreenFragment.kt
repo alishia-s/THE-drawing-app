@@ -68,16 +68,16 @@ class MainScreenFragment : Fragment() {
 }
 
 @Composable
-fun SavedCanvasList(savedCanvases: Flow<List<Bitmap?>>, onClick: (Bitmap) -> Unit) {
+fun SavedCanvasList(savedCanvases: Flow<List<Drawing>>, onClick: (Bitmap) -> Unit) {
     val bitmaps by savedCanvases.collectAsState(initial = emptyList())
     Log.d("SavedCanvasList", "BitmapList size: ${bitmaps.size}")
     val scrollState = rememberScrollState()
     Row(modifier = Modifier.horizontalScroll(scrollState)) {
-        bitmaps.reversed().forEach { bitmap ->
-            if(bitmap == null) {
+        bitmaps.reversed().forEach { drawing ->
+            if(drawing.bitmap == null) {
                 Log.d("SavedCanvasList", "Bitmap is null")
             } else {
-                SavedCanvas(bitmap, onClick)
+                SavedCanvas(drawing.bitmap!!, onClick)
             }
             Spacer(modifier = Modifier.width(8.dp))
         }

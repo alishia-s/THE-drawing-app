@@ -11,13 +11,18 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
     private val _canvasBitmap = MutableLiveData<Bitmap>()
     val canvasBitmap: LiveData<Bitmap> = _canvasBitmap
-    private val _savedCanvases = MutableStateFlow<List<Bitmap?>>(emptyList())
-    val savedCanvases: Flow<List<Bitmap?>> = _savedCanvases
+
+    private val _savedCanvases = MutableStateFlow<List<Drawing>>(emptyList())
+    val savedCanvases: Flow<List<Drawing>> = _savedCanvases
+
+
     val tool = Tool()
     private val userViewModel = UserViewModel()
 
@@ -31,14 +36,17 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
     fun sendDrawing()
     {
         //send directly to repo
-        repo.saveDrawing(_canvasBitmap.value!!)
+        val drawing = Drawing(null, _canvasBitmap.value)
+        viewModelScope.launch {
+            drawing.id = repo.saveDrawing(drawing)
+        }
+
     }
 
     fun syncWithCloud() {
         viewModelScope.launch {
             try {
                 val images = repo.retrieveUserImagesFromCloud(userViewModel.getUserID() ?: "")
-                _savedCanvases.value = images
                 Log.d("DrawingViewModel", "Synced ${userViewModel.getUserID() ?: ""} with cloud, retrieved ${images.size} images")
             } catch (e: Exception) {
                 Log.e("DrawingViewModel", e.localizedMessage ?: "Error syncing with cloud")

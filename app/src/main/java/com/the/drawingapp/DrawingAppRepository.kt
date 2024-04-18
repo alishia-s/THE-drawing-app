@@ -34,19 +34,20 @@ class DrawingAppRepository(
     private val storage = FirebaseStorage.getInstance()
 
     //var allDrawings = mutableListOf<Bitmap>()
-    fun getAllUserDrawings(): Flow<List<Bitmap?>> {
+    fun getAllUserDrawings(): Flow<List<Drawing>> {
         val userId = userViewModel.getUserID() ?: ""
         return dao.getUserDrawings(userId).map { drawings ->
-            drawings.map { drawing -> retrieveBitmapFromFile(drawing.name) }
+            drawings.map { drawing -> retrieveBitmapFromFile(drawing.name, drawing.id) }
         }
     }
 
-    private fun retrieveBitmapFromFile(fileName: String): Bitmap? {
+    private fun retrieveBitmapFromFile(fileName: String, drawingId: Int): Drawing {
         val dir = context.filesDir.path
         val file = File(dir, fileName)
+        var drawing = Drawing(drawingId, null)
         if (!file.exists()) {
             Log.e("Repository", "File $dir + $fileName does not exist")
-            return null
+            return drawing
         }
 
         val opts = BitmapFactory.Options().apply {
@@ -55,10 +56,12 @@ class DrawingAppRepository(
         }
 
         return try {
-            decodeFile(file.absolutePath, opts)
+            val bitmap = decodeFile(file.absolutePath, opts)
+            drawing = Drawing(drawingId, bitmap)
+            drawing
         } catch (e: Exception) {
             Log.e("Repository", "Failed to decode file")
-            null
+            drawing
         }
     }
 
@@ -125,27 +128,27 @@ class DrawingAppRepository(
         }
     }
 
-    fun saveDrawing(drawing: Bitmap) {
-        scope.launch(Dispatchers.IO) {
-            val fileName = "${System.currentTimeMillis()}.png"
-            val file = File(context.filesDir, fileName)
-            withContext(Dispatchers.IO) {
-                FileOutputStream(file).use {
-                    drawing.compress(Bitmap.CompressFormat.PNG, 100, it)
-                }
+    suspend fun saveDrawing(drawing: Drawing): Int {
+
+        val fileName = "${System.currentTimeMillis()}.png"
+        val file = File(context.filesDir, fileName)
+        withContext(Dispatchers.IO) {
+            FileOutputStream(file).use {
+                drawing.bitmap!!.compress(Bitmap.CompressFormat.PNG, 100, it)
             }
-            val userId = userViewModel.getUserID()
-            val drawingData = DrawingAppData(userId ?: "", fileName, Date())
-            dao.saveDrawing(drawingData)
-            uploadToCloud(drawing, drawingData)
         }
+        val userId = userViewModel.getUserID()
+        val drawingData = DrawingAppData(userId ?: "", fileName, Date())
+        dao.saveDrawing(drawingData)
+        uploadToCloud(drawing, drawingData)
+        return drawingData.id
     }
 
-    private fun uploadToCloud(drawing: Bitmap, drawingData: DrawingAppData) {
+    private fun uploadToCloud(drawing: Drawing, drawingData: DrawingAppData) {
         val userID = userViewModel.getUserID() ?: return
         val storageRef = storage.reference.child("drawings/$userID/${drawingData.name}")
         val baos = ByteArrayOutputStream()
-        drawing.compress(Bitmap.CompressFormat.PNG, 100, baos)
+        drawing.bitmap!!.compress(Bitmap.CompressFormat.PNG, 100, baos)
         val data = baos.toByteArray()
 
         storageRef.putBytes(data).addOnCompleteListener {

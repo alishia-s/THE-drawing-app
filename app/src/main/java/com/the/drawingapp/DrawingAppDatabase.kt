@@ -65,4 +65,5 @@ interface DrawingAppDao
 
     @Query("Delete from drawings")
     suspend fun NUKEITALL()
+
 }

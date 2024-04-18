@@ -50,7 +50,15 @@ class DrawableFragment: Fragment() {
         initUndoButton(binding)
         initRedoButton(binding)
         initToolbarButtons()
+        initDeleteButton()
         return binding.root
+    }
+
+    private fun initDeleteButton() {
+        binding.deleteButton.setOnClickListener {
+            drawingViewModel.deleteCurrentDrawing()
+            findNavController().navigate(R.id.action_DrawableFragmentToMainScreen)
+        }
     }
 
     private fun initShareButton(binding: FragmentDrawableBinding, inflater : LayoutInflater) {

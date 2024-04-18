@@ -21,6 +21,9 @@ class UserViewModel : ViewModel() {
 
     private val authStateListener = FirebaseAuth.AuthStateListener { firebaseAuth ->
         _user.value = firebaseAuth.currentUser
+        if(firebaseAuth.currentUser != null) {
+            _authMessage.value = "Logged in as ${firebaseAuth.currentUser?.email}"
+        }
     }
 
     init {
@@ -62,6 +65,10 @@ class UserViewModel : ViewModel() {
         return firebaseAuth.currentUser?.uid
     }
 
+    fun getUserIdByEmail(email: String): String? {
+        return firebaseAuth.currentUser?.uid
+    }
+
     fun logout() {
         firebaseAuth.signOut()
     }
@@ -69,6 +76,8 @@ class UserViewModel : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         firebaseAuth.removeAuthStateListener(authStateListener)
+        _user.value = null
     }
+
 
 }

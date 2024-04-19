@@ -3,7 +3,6 @@ package com.the.drawingapp
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.util.Log
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,12 +15,21 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
+    init{
+        System.loadLibrary("filter")
+    }
     private val _canvasBitmap = MutableLiveData<Bitmap>()
     val canvasBitmap: LiveData<Bitmap> = _canvasBitmap
+    var undoStatus = MutableLiveData<Boolean>()
+    var redoStatus = MutableLiveData<Boolean>()
+
+    private val undoStack : MutableList<Bitmap> = mutableListOf()
+    private val redoStack : MutableList<Bitmap> = mutableListOf()
+
+    //for reverting
 
     private val _savedCanvases = MutableStateFlow<List<Drawing>>(emptyList())
     val savedCanvases: Flow<List<Drawing>> = _savedCanvases
-
 
     private var _currentDrawing = MutableStateFlow<Drawing?>(null)
     var currentDrawing: StateFlow<Drawing?> = _currentDrawing.asStateFlow()
@@ -30,20 +38,67 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
     private val userViewModel = UserViewModel()
 
     private val greyscale = Greyscale()
-    init{
-        System.loadLibrary("filter")
-    }
 
+    private fun push(bmp : Bitmap, stack: MutableList<Bitmap>) {
+        val bmp = bmp.copy(Bitmap.Config.ARGB_8888, true)
+        stack.add(bmp)
+    }
+    private fun pop(stack: MutableList<Bitmap>) : Bitmap?
+    {
+        val bmp = stack.lastOrNull()
+
+        if(!stack.isEmpty()){
+            stack.removeAt(stack.size-1)
+        }
+        return bmp
+    }
 
     fun greyscale(){
         val bmp = _canvasBitmap.value!!.copy(Bitmap.Config.ARGB_8888, true)
+        push(_canvasBitmap.value!!, undoStack)
         greyscale.greyscale(bmp)
         _canvasBitmap.value = bmp
     }
 
+    fun undo(){
+        val bmp = pop(undoStack)
+        if(bmp != null)
+        {
+            push(_canvasBitmap.value!!, redoStack)
+            _canvasBitmap.value = bmp!!
+            if (_currentDrawing.value != null) {
+                _currentDrawing.value?.bitmap = _canvasBitmap.value
+            }
+        }
+        else{
+            undoStatus.value = false
+            Log.e("UNDO", "DIDN'T UNDO")
+        }
+    }
+
+    fun redo()
+    {
+       val bmp = pop(redoStack)
+       if(bmp != null)
+       {
+           push(_canvasBitmap.value!!, undoStack)
+           _canvasBitmap.value = bmp!!
+           if (_currentDrawing.value != null)
+           {
+               _currentDrawing.value?.bitmap = _canvasBitmap.value
+           }
+           Log.e("REDO", "REDO")
+       }
+       else{
+           redoStatus.value = false
+           Log.e("REDO", "DIDN'T REDO")
+       }
+    }
+
     fun initBitmap() {
         if(_canvasBitmap.value == null){
-            _canvasBitmap.value = Bitmap.createBitmap(1000, 1000, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.WHITE) }
+            _canvasBitmap.value = Bitmap.createBitmap(1000, 1000, Bitmap.Config.ARGB_8888).apply {
+                eraseColor(Color.WHITE) }
         }
     }
 
@@ -119,12 +174,17 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
 
     fun updateBitmap(bitmap: Bitmap)
     {
+        Log.e("size of undo stack", "${undoStack.size}")
         _canvasBitmap.value = bitmap
         if (_currentDrawing.value != null) {
             _currentDrawing.value?.bitmap = bitmap
         }
     }
 
+    fun addToUndoStack(bitmap : Bitmap)
+    {
+        push(bitmap, undoStack)
+    }
     class DrawingViewModelFactory(private val repo : DrawingAppRepository) : ViewModelProvider.Factory{
         override fun <T: ViewModel> create(modelClass: Class<T>) : T {
             if(modelClass.isAssignableFrom(DrawingViewModel::class.java)){

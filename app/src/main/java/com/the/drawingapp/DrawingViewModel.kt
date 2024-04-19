@@ -38,6 +38,7 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
     private val userViewModel = UserViewModel()
 
     private val greyscale = Greyscale()
+    private val invert = Invert()
 
     private fun push(bmp : Bitmap, stack: MutableList<Bitmap>) {
         val bmp = bmp.copy(Bitmap.Config.ARGB_8888, true)
@@ -57,6 +58,13 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
         val bmp = _canvasBitmap.value!!.copy(Bitmap.Config.ARGB_8888, true)
         push(_canvasBitmap.value!!, undoStack)
         greyscale.greyscale(bmp)
+        _canvasBitmap.value = bmp
+    }
+
+    fun invert(){
+        val bmp = _canvasBitmap.value!!.copy(Bitmap.Config.ARGB_8888, true)
+        push(_canvasBitmap.value!!, undoStack)
+        invert.invert(bmp)
         _canvasBitmap.value = bmp
     }
 

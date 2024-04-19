@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/drawable_screen_background">
 
+
     <LinearLayout
         android:id="@+id/linearLayout2"
         android:layout_width="387dp"
@@ -33,8 +34,7 @@
             android:id="@+id/share_button"
             android:layout_width="50dp"
             android:layout_height="49dp"
-            android:background="@drawable/share_button_icon"
-            />
+            android:background="@drawable/share_button_icon" />
 
         <TextView
             android:id="@+id/spacer_02"
@@ -46,8 +46,7 @@
             android:id="@+id/delete_button"
             android:layout_width="50dp"
             android:layout_height="49dp"
-            android:background="@drawable/delete_button_icon"
-            />
+            android:background="@drawable/delete_button_icon" />
 
         <TextView
             android:id="@+id/spacer_03"
@@ -59,8 +58,7 @@
             android:id="@+id/save_button"
             android:layout_width="50dp"
             android:layout_height="49dp"
-            android:background="@drawable/save_button_icon"
-             />
+            android:background="@drawable/save_button_icon" />
     </LinearLayout>
 
     <com.the.drawingapp.DrawingView
@@ -127,37 +125,42 @@
             android:background="@drawable/colorpicker_button_icon" />
     </LinearLayout>
 
+
     <Button
         android:id="@+id/greyscale"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="14dp"
         android:text="Button"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-        app:layout_constraintEnd_toStartOf="@+id/undo"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/canvas"
-        app:layout_constraintVertical_bias="0.304" />
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/invert"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="14dp"
+        android:text="Button"
+        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintStart_toEndOf="@+id/greyscale" />
 
     <Button
         android:id="@+id/undo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="40dp"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="13dp"
         android:text="undo"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-        app:layout_constraintEnd_toStartOf="@+id/redo"
-        app:layout_constraintTop_toBottomOf="@+id/canvas"
-        app:layout_constraintVertical_bias="0.26" />
+        app:layout_constraintEnd_toStartOf="@+id/redo" />
 
     <Button
         android:id="@+id/redo"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="14dp"
         android:text="redo"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/canvas"
-        app:layout_constraintVertical_bias="0.26" />
+        app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

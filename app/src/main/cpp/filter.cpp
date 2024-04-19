@@ -55,7 +55,21 @@ static uint32_t * getRGB(uint32_t pixel)
     return RGB_arr;
 }
 
-static void invert(AndroidBitmapInfo* info, void* pixels);
+static void invert(AndroidBitmapInfo* bitmap, void* pixels){
+    int x, y;
+    argb * line;
+
+    for (y = 0; y < bitmap->height; y++)
+    {
+        line = (argb *)pixels;
+        for (x = 0; x < bitmap->width; x++) {
+            line[x].red = 255 - line[x].red;
+            line[x].green = 255 - line[x].green;
+            line[x].blue = 255 - line[x].blue;
+        }
+        pixels = (char*)pixels + bitmap->stride;
+    }
+}
 
 extern "C"
 JNIEXPORT void JNICALL
@@ -76,5 +90,27 @@ Java_com_the_drawingapp_Greyscale_greyscale(JNIEnv *env, jobject thiz, jobject b
     }
 
     greyscale(&info, pixels);
+    AndroidBitmap_unlockPixels(env, bmp);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_the_drawingapp_Invert_invert(JNIEnv *env, jobject thiz, jobject bmp){
+    AndroidBitmapInfo info;
+    void* pixels;
+    if((AndroidBitmap_getInfo(env, bmp, &info))<0)
+    {
+        return;
+    }
+    if(info.format != ANDROID_BITMAP_FORMAT_RGBA_8888)
+    {
+        return;
+    }
+    if((AndroidBitmap_lockPixels(env, bmp, &pixels)) < 0)
+    {
+        return;
+    }
+
+    invert(&info, pixels);
     AndroidBitmap_unlockPixels(env, bmp);
 }

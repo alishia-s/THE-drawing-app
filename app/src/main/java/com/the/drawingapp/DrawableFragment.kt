@@ -47,11 +47,18 @@ class DrawableFragment: Fragment() {
         initSaveButton(binding)
         initShareButton(binding, inflater)
         initGreyscaleButton(binding)
+        initInvertButton(binding)
         initUndoButton(binding)
         initRedoButton(binding)
         initToolbarButtons()
         initDeleteButton()
         return binding.root
+    }
+
+    private fun initInvertButton(binding: FragmentDrawableBinding) {
+        binding.invert?.setOnClickListener{
+            drawingViewModel.invert()
+        }
     }
 
     private fun initDeleteButton() {

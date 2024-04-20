@@ -54,6 +54,11 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
         return bmp
     }
 
+    fun clearStack(){
+        undoStack.clear()
+        redoStack.clear()
+    }
+
     fun greyscale(){
         val bmp = _canvasBitmap.value!!.copy(Bitmap.Config.ARGB_8888, true)
         push(_canvasBitmap.value!!, undoStack)

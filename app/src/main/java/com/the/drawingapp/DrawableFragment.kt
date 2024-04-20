@@ -109,6 +109,7 @@ class DrawableFragment: Fragment() {
         binding.backButton.setOnClickListener {
             binding.penSizeBar.progress = 12
             bitmap.eraseColor(Color.WHITE)
+            drawingViewModel.clearStack()
             findNavController().navigate(R.id.action_DrawableFragmentToMainScreen)
         }
     }

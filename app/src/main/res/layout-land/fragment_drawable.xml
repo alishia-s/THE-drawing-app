@@ -74,6 +74,44 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/drawable_screen_toolbar_background"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/linearLayout"
+        app:layout_constraintHorizontal_bias="0.9"
+        app:layout_constraintStart_toEndOf="@+id/canvas"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/greyscale"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/greyscale_button" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/invert"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/invert_button" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/undo"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/undo_button" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/redo"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/redo_button" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="48dp"
         android:layout_height="322dp"

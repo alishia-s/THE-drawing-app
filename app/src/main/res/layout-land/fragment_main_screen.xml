@@ -19,19 +19,55 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/mainTitle"
-            android:layout_width="356dp"
-            android:layout_height="79dp"
-            android:background="@drawable/main_screen_title_background"
-            android:fontFamily="sans-serif-black"
-            android:gravity="center_vertical|center_horizontal"
-            android:letterSpacing="0.06"
-            android:scaleY="0.95"
-            android:text="Past Projects"
-            android:textAllCaps="true"
-            android:textColor="#D5EFF7"
-            android:textSize="30sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/logoutButton"
+                android:layout_width="98dp"
+                android:layout_height="61dp"
+                android:layout_marginStart="10dp"
+                android:layout_weight="1"
+                android:backgroundTint="#D4EEF6"
+                android:fontFamily="sans-serif"
+                android:insetLeft="0dp"
+                android:text="LOG OUT"
+                android:textColor="#0E075A"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                app:iconTint="#D4EEF6"
+                app:iconTintMode="add"
+                app:strokeColor="#D4EEF6" />
+
+            <TextView
+                android:id="@+id/Spacer01"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/mainTitle"
+                android:layout_width="356dp"
+                android:layout_height="79dp"
+                android:background="@drawable/main_screen_title_background"
+                android:fontFamily="sans-serif-black"
+                android:gravity="center_vertical|center_horizontal"
+                android:letterSpacing="0.06"
+                android:scaleY="0.95"
+                android:text="Past Projects"
+                android:textAllCaps="true"
+                android:textColor="#D5EFF7"
+                android:textSize="30sp" />
+
+            <TextView
+                android:id="@+id/Spacer02"
+                android:layout_width="140dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"

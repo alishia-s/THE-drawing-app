@@ -126,41 +126,42 @@
     </LinearLayout>
 
 
-    <Button
-        android:id="@+id/greyscale"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="14dp"
-        android:text="Button"
+    <LinearLayout
+        android:layout_width="208dp"
+        android:layout_height="50dp"
+        android:background="@drawable/drawable_screen_toolbar_background"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.497"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/canvas">
 
-    <Button
-        android:id="@+id/invert"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="14dp"
-        android:text="Button"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-        app:layout_constraintStart_toEndOf="@+id/greyscale" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/greyscale"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/greyscale_button" />
 
-    <Button
-        android:id="@+id/undo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="13dp"
-        android:text="undo"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-        app:layout_constraintEnd_toStartOf="@+id/redo" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/invert"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/invert_button" />
 
-    <Button
-        android:id="@+id/redo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="14dp"
-        android:text="redo"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/undo"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/undo_button" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/redo"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/redo_button" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

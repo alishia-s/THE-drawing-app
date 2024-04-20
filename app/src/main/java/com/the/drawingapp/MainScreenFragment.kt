@@ -1,6 +1,5 @@
 package com.the.drawingapp
 
-import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -45,14 +44,9 @@ class MainScreenFragment : Fragment() {
             drawingViewModel.syncWithCloud()
         }
 
-        // TODO: make actual logout and nuke button
-        binding.moveLeft.setOnClickListener() {
+        binding.logoutButton.setOnClickListener() {
             userViewModel.logout()
             findNavController().navigate(R.id.LoginFragment)
-        }
-
-        binding.moveRight.setOnClickListener() {
-            drawingViewModel.NUKE()
         }
 
         drawingViewModel.getAllUserDrawings()

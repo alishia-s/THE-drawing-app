@@ -2,13 +2,16 @@
 <project version="4">
   <component name="deploymentTargetDropDown">
     <value>
+      <entry key="DrawingAppComposeTests">
+        <State />
+      </entry>
       <entry key="DrawingAppInstrumentedTests">
         <State />
       </entry>
-      <entry key="app">
+      <entry key="DrawingAppInstrumentedTests$DrawingViewModelTest">
         <State />
       </entry>
-      <entry key="testingDB_SavingAndGettingDrawings()">
+      <entry key="app">
         <State />
       </entry>
     </value>

@@ -292,14 +292,14 @@ class DrawingAppComposeTests {
 
     @get:Rule
     val composeTestRule = createComposeRule()
-    private var bitmapFlow = MutableStateFlow<List<Bitmap>>(emptyList())
+    private var drawingFlow = MutableStateFlow<List<Drawing>>(emptyList())
 
     @Before
     fun setup() {
-        bitmapFlow.value = listOf(
-            Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888),
-            Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+        drawingFlow.value = listOf(
+            Drawing(1, Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)),
+            Drawing(2, Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)),
+            Drawing(3, Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888))
         )
 
     }
@@ -307,10 +307,10 @@ class DrawingAppComposeTests {
     @Test
     fun savedCanvasList_displaysCorrectNumberOfItems() {
         composeTestRule.setContent {
-            SavedCanvasList(savedCanvases = bitmapFlow) {}
+            SavedCanvasList(savedCanvases = drawingFlow) {}
         }
 
-        bitmapFlow.value.forEachIndexed() { _, bitmap ->
+        drawingFlow.value.forEachIndexed() { _, bitmap ->
             composeTestRule
                 .onNodeWithContentDescription(bitmap.toString(), useUnmergedTree = true)
                 .assertExists()
@@ -320,17 +320,17 @@ class DrawingAppComposeTests {
     @Test
     fun savedCanvas_clickTriggersOnClick() {
         var clicked = false
-        val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
-        bitmapFlow.value = listOf(bitmap)
+        val drawing = Drawing(1, Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888))
+        drawingFlow.value = listOf(drawing)
 
         composeTestRule.setContent {
-            SavedCanvasList(savedCanvases = bitmapFlow) {
+            SavedCanvasList(savedCanvases = drawingFlow) {
                 clicked = true
             }
         }
 
         composeTestRule
-            .onNodeWithContentDescription(bitmap.toString(), useUnmergedTree = true)
+            .onNodeWithContentDescription(drawing.toString(), useUnmergedTree = true)
             .performClick()
 
         assert(clicked)
@@ -338,9 +338,7 @@ class DrawingAppComposeTests {
 
     @Test
     fun savedCanvasList_displaysBitmapImagesCorrectly() = runTest {
-        val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888).apply {
-            eraseColor(Color.RED)
-        }
+        val bitmap = Drawing(1, Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888).apply { eraseColor(Color.RED) })
         val bitmapDescription = bitmap.toString()
         val bitmapListFlow = MutableStateFlow(listOf(bitmap))
 
@@ -355,12 +353,12 @@ class DrawingAppComposeTests {
 
     @Test
     fun savedCanvas_clickTriggersExpectedAction() = runTest {
-        var clickedBitmap: Bitmap? = null
-        val target = bitmapFlow.value.first()
+        var clickedBitmap: Drawing? = null
+        val target = drawingFlow.value.first()
         val targetDescription = target.toString()
 
         composeTestRule.setContent {
-            SavedCanvasList(savedCanvases = bitmapFlow) { selectedBitmap ->
+            SavedCanvasList(savedCanvases = drawingFlow) { selectedBitmap ->
                 clickedBitmap = selectedBitmap
             }
         }
@@ -374,10 +372,10 @@ class DrawingAppComposeTests {
 
     @Test
     fun savedCanvasList_ScrollsHorizontally() {
-        val bitmap = bitmapFlow.value.last()
+        val bitmap = drawingFlow.value.last()
 
         composeTestRule.setContent {
-            SavedCanvasList(savedCanvases = bitmapFlow) {}
+            SavedCanvasList(savedCanvases = drawingFlow) {}
         }
         composeTestRule.onNodeWithContentDescription(bitmap.toString(), useUnmergedTree = true)
             .assertExists()
@@ -387,7 +385,7 @@ class DrawingAppComposeTests {
     @Test
     fun canvasClick_TriggersNavigation() {
         val navController = TestNavHostController(ApplicationProvider.getApplicationContext())
-        val bitmap = Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888)
+        val bitmap = Drawing(1, Bitmap.createBitmap(100, 100, Bitmap.Config.ARGB_8888))
 
         composeTestRule.setContent {
 

@@ -125,6 +125,9 @@ class DrawingViewModel(private val repo : DrawingAppRepository) : ViewModel() {
                 it.id?.let { currID -> repo.deleteDrawing(currID) }
             }
         }
+        _canvasBitmap.value = Bitmap.createBitmap(1000, 1000, Bitmap.Config.ARGB_8888).apply {
+            eraseColor(Color.WHITE)
+        }
     }
 
     //send drawing to repo via bitmap to png

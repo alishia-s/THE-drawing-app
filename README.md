@@ -1,5 +1,3 @@
-# University of Utah - CS4530: Mobile App Programming
-
 ## Drawing App by THE
 
 ### THE - Team Members:
